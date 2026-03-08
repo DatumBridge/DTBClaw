@@ -895,6 +895,37 @@ pub(crate) async fn agent_turn(
     multimodal_config: &crate::config::MultimodalConfig,
     max_tool_iterations: usize,
 ) -> Result<String> {
+    agent_turn_with_excluded(
+        provider,
+        history,
+        tools_registry,
+        observer,
+        provider_name,
+        model,
+        temperature,
+        silent,
+        multimodal_config,
+        max_tool_iterations,
+        &[],
+    )
+    .await
+}
+
+/// Like agent_turn but with excluded_tools (e.g. from DatumBridge policy).
+#[allow(clippy::too_many_arguments)]
+pub(crate) async fn agent_turn_with_excluded(
+    provider: &dyn Provider,
+    history: &mut Vec<ChatMessage>,
+    tools_registry: &[Box<dyn Tool>],
+    observer: &dyn Observer,
+    provider_name: &str,
+    model: &str,
+    temperature: f64,
+    silent: bool,
+    multimodal_config: &crate::config::MultimodalConfig,
+    max_tool_iterations: usize,
+    excluded_tools: &[String],
+) -> Result<String> {
     run_tool_call_loop(
         provider,
         history,
@@ -911,7 +942,7 @@ pub(crate) async fn agent_turn(
         None,
         None,
         None,
-        &[],
+        excluded_tools,
     )
     .await
 }
@@ -3078,13 +3109,17 @@ pub async fn run(
 /// Process a single message through the full agent (with tools, peripherals, memory).
 /// Used by channels (Telegram, Discord, etc.) to enable hardware and tool use.
 pub async fn process_message(config: Config, message: &str) -> Result<String> {
-    process_message_with_session(config, message, None).await
+    process_message_with_session(config, message, None, None, None).await
 }
 
+/// Process a message with optional policy-driven constraints (excluded_tools, max_tool_iterations).
+/// Used by DatumBridge master-slave integration (Option A: policy in WebSocket message).
 pub async fn process_message_with_session(
     config: Config,
     message: &str,
     session_id: Option<&str>,
+    excluded_tools: Option<&[String]>,
+    max_tool_iterations_override: Option<usize>,
 ) -> Result<String> {
     if let Err(error) = crate::plugins::runtime::initialize_from_config(&config.plugins) {
         tracing::warn!("plugin registry initialization skipped: {error}");
@@ -3290,11 +3325,13 @@ pub async fn process_message_with_session(
     } else {
         None
     };
+    let excluded = excluded_tools.unwrap_or(&[]);
+    let max_iter = max_tool_iterations_override.unwrap_or(config.agent.max_tool_iterations);
     scope_cost_enforcement_context(
         cost_enforcement_context,
         SAFETY_HEARTBEAT_CONFIG.scope(
             hb_cfg,
-            agent_turn(
+            agent_turn_with_excluded(
                 provider.as_ref(),
                 &mut history,
                 &tools_registry,
@@ -3304,7 +3341,8 @@ pub async fn process_message_with_session(
                 config.default_temperature,
                 true,
                 &config.multimodal,
-                config.agent.max_tool_iterations,
+                max_iter,
+                excluded,
             ),
         ),
     )

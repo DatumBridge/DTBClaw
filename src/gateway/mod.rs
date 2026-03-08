@@ -8,6 +8,10 @@
 //! - Header sanitization (handled by axum/hyper)
 
 pub mod api;
+mod datumbridge_policy;
+mod mcp_handler;
+pub mod mcp_hub_client;
+pub mod mcp_server;
 mod openai_compat;
 mod openclaw_compat;
 pub mod sse;
@@ -797,6 +801,40 @@ pub async fn run_gateway(host: &str, port: u16, config: Config) -> Result<()> {
         event_tx,
     };
 
+    // Spawn MCP hub client when hub URL, device_id, and token are configured (config or env)
+    let hub_url = std::env::var("MCP_HUB_URL")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .or_else(|| config.gateway.mcp_hub.url.clone().filter(|s| !s.is_empty()));
+    let device_id = std::env::var("MCP_DEVICE_ID")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .or_else(|| {
+            config
+                .gateway
+                .mcp_hub
+                .device_id
+                .clone()
+                .filter(|s| !s.is_empty())
+        });
+    let token = std::env::var("MCP_HUB_TOKEN")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .or_else(|| {
+            config
+                .gateway
+                .mcp_hub
+                .token
+                .clone()
+                .filter(|s| !s.is_empty())
+        });
+    if let (Some(hub_url), Some(device_id), Some(token)) = (hub_url, device_id, token) {
+        let state = Arc::new(state.clone());
+        tokio::spawn(async move {
+            mcp_hub_client::run_mcp_hub_client(state, hub_url, device_id, token).await
+        });
+    }
+
     // Config PUT needs larger body limit (1MB)
     let config_put_router = Router::new()
         .route("/api/config", put(api::handle_api_config_put))
@@ -868,6 +906,8 @@ pub async fn run_gateway(host: &str, port: u16, config: Config) -> Result<()> {
         .route("/api/events", get(sse::handle_sse_events))
         // ── WebSocket agent chat ──
         .route("/ws/chat", get(ws::handle_ws_chat))
+        // ── MCP (Model Context Protocol) for DatumBridge Tool Registry ──
+        .route("/mcp", post(mcp_server::handle_mcp))
         // ── Static assets (web dashboard) ──
         .route("/_app/{*path}", get(static_files::handle_static))
         // ── Config PUT with larger body limit ──
@@ -1098,8 +1138,41 @@ pub(super) async fn run_gateway_chat_with_tools(
     message: &str,
     session_id: Option<&str>,
 ) -> anyhow::Result<String> {
+    run_gateway_chat_with_tools_policy(state, message, session_id, None).await
+}
+
+/// Like run_gateway_chat_with_tools but with DatumBridge policy constraints (Option A).
+pub(super) async fn run_gateway_chat_with_tools_policy(
+    state: &AppState,
+    message: &str,
+    session_id: Option<&str>,
+    policy: Option<&datumbridge_policy::DatumbridgePolicy>,
+) -> anyhow::Result<String> {
     let config = state.config.lock().clone();
-    crate::agent::process_message_with_session(config, message, session_id).await
+    let (excluded, max_iter) = if let Some(p) = policy {
+        if !p.is_active() {
+            (None, None)
+        } else {
+            let all_names: Vec<String> = state
+                .tools_registry_exec
+                .iter()
+                .map(|t| t.name().to_string())
+                .collect();
+            let excluded = p.excluded_tools(&all_names);
+            let max_iter = p.max_tool_iterations(config.agent.max_tool_iterations);
+            (Some(excluded), Some(max_iter))
+        }
+    } else {
+        (None, None)
+    };
+    crate::agent::process_message_with_session(
+        config,
+        message,
+        session_id,
+        excluded.as_deref(),
+        max_iter,
+    )
+    .await
 }
 
 fn gateway_outbound_leak_guard_snapshot(

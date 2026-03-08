@@ -3,8 +3,11 @@
 //! Protocol:
 //! ```text
 //! Client -> Server: {"type":"message","content":"Hello"}
+//! Client -> Server: {"type":"message","content":"...","policy":{...},"session_id":"..."}  (Option A: DatumBridge)
+//! Client -> Server: {"type":"approve","request_id":"..."} / {"type":"reject","request_id":"..."}
 //! Server -> Client: {"type":"chunk","content":"Hi! "}
 //! Server -> Client: {"type":"tool_call","name":"shell","args":{...}}
+//! Server -> Client: {"type":"approval_required","name":"shell","args":{...},"request_id":"..."}
 //! Server -> Client: {"type":"tool_result","name":"shell","output":"..."}
 //! Server -> Client: {"type":"done","full_response":"..."}
 //! ```
@@ -453,6 +456,13 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, session_id: Strin
         };
 
         let msg_type = parsed["type"].as_str().unwrap_or("");
+
+        // Handle approve/reject for require_approval tools (Option A)
+        if msg_type == "approve" || msg_type == "reject" {
+            // TODO: wire to ApprovalManager / pending approval resolution
+            continue;
+        }
+
         if msg_type != "message" {
             continue;
         }
@@ -461,6 +471,11 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, session_id: Strin
         if content.is_empty() {
             continue;
         }
+
+        // Option A: parse policy from message payload
+        let policy: Option<super::datumbridge_policy::DatumbridgePolicy> = parsed
+            .get("policy")
+            .and_then(|v| serde_json::from_value(v.clone()).ok());
         let perplexity_cfg = { state.config.lock().security.perplexity_filter.clone() };
         if let Some(assessment) =
             crate::security::detect_adversarial_suffix(&content, &perplexity_cfg)
@@ -502,7 +517,15 @@ async fn handle_socket(mut socket: WebSocket, state: AppState, session_id: Strin
         }));
 
         // Full agentic loop with tools (includes WASM skills, shell, memory, etc.)
-        match super::run_gateway_chat_with_tools(&state, &content, Some(&ws_session_id)).await {
+        // Option A: when policy present, enforce DatumBridge constraints
+        match super::run_gateway_chat_with_tools_policy(
+            &state,
+            &content,
+            Some(&ws_session_id),
+            policy.as_ref(),
+        )
+        .await
+        {
             Ok(response) => {
                 let leak_guard_cfg = { state.config.lock().security.outbound_leak_guard.clone() };
                 let safe_response = finalize_ws_response(

@@ -315,6 +315,23 @@ Examples:
         service_command: ServiceCommands,
     },
 
+    /// Register with MCP WebSocket hub (datumbridge-mcp-ws-hub) using 6-digit pairing
+    #[command(long_about = "\
+Register this DTBClaw instance with the MCP WebSocket hub.
+
+Initiates pairing with the hub, then prompts for the 6-digit pairing code.
+The hub creates the code; enter it when prompted to complete registration.
+Credentials are saved to config (gateway.mcp_hub).
+
+Examples:
+  zeroclaw register
+  zeroclaw register --hub-url http://localhost:8005")]
+    Register {
+        /// Hub base URL (default: config gateway.mcp_hub.url or MCP_HUB_URL)
+        #[arg(long)]
+        hub_url: Option<String>,
+    },
+
     /// Run diagnostics for daemon/scheduler/channel freshness
     Doctor {
         #[command(subcommand)]
@@ -1019,6 +1036,8 @@ async fn main() -> Result<()> {
             }
             daemon::run(config, host, port).await
         }
+
+        Commands::Register { hub_url } => run_register(&config, hub_url).await,
 
         Commands::Status => {
             println!("🦀 ZeroClaw Status");
@@ -1744,6 +1763,88 @@ fn extract_openai_account_id_for_profile(access_token: &str) -> Option<String> {
         );
     }
     account_id
+}
+
+async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()> {
+    let hub_url = hub_url_arg
+        .filter(|s| !s.is_empty())
+        .or_else(|| std::env::var("MCP_HUB_URL").ok().filter(|s| !s.is_empty()))
+        .or_else(|| config.gateway.mcp_hub.url.clone().filter(|s| !s.is_empty()));
+    let hub_url = hub_url.as_deref().ok_or_else(|| {
+        anyhow::anyhow!(
+            "Hub URL required. Set gateway.mcp_hub.url in config, MCP_HUB_URL env, or --hub-url"
+        )
+    })?;
+    let base = hub_url.trim_end_matches('/');
+
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()?;
+
+    // Start pairing: POST /api/v1/devices/register with pairing=true
+    let start_resp = client
+        .post(format!("{base}/api/v1/devices/register"))
+        .json(&serde_json::json!({ "pairing": true }))
+        .send()
+        .await
+        .context("Failed to connect to hub")?;
+    if !start_resp.status().is_success() {
+        let status = start_resp.status();
+        let body = start_resp.text().await.unwrap_or_default();
+        anyhow::bail!("Hub returned {status}: {body}");
+    }
+    let start_json: serde_json::Value = start_resp.json().await?;
+    if !start_json.get("pairing_code").and_then(|v| v.as_str()).is_some() {
+        anyhow::bail!("Hub did not return pairing_code");
+    }
+
+    println!("Enter the 6-digit pairing code (shown on the hub test UI or hub terminal):");
+
+    let input: String = Input::new()
+        .with_prompt("Pairing code")
+        .validate_with(|s: &String| {
+            if s.chars().all(|c| c.is_ascii_digit()) && s.len() == 6 {
+                Ok(())
+            } else {
+                Err("Enter a 6-digit code")
+            }
+        })
+        .interact_text()?;
+
+    let code = input.trim();
+
+    // Confirm pairing: POST /api/v1/devices/register/confirm
+    let confirm_resp = client
+        .post(format!("{base}/api/v1/devices/register/confirm"))
+        .json(&serde_json::json!({ "pairing_code": code }))
+        .send()
+        .await
+        .context("Failed to confirm pairing")?;
+    if !confirm_resp.status().is_success() {
+        let status = confirm_resp.status();
+        let body = confirm_resp.text().await.unwrap_or_default();
+        anyhow::bail!("Hub confirm returned {status}: {body}");
+    }
+    let confirm_json: serde_json::Value = confirm_resp.json().await?;
+    let device_id = confirm_json
+        .get("device_id")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| anyhow::anyhow!("Hub did not return device_id"))?;
+    let token = confirm_json
+        .get("token")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| anyhow::anyhow!("Hub did not return token"))?;
+
+    // Save to config
+    let mut persisted = Config::load_or_init().await?;
+    persisted.gateway.mcp_hub.url = Some(base.to_string());
+    persisted.gateway.mcp_hub.device_id = Some(device_id.to_string());
+    persisted.gateway.mcp_hub.token = Some(token.to_string());
+    persisted.save().await?;
+
+    println!("✅ Registered with hub: device_id={device_id}");
+    println!("   Credentials saved to config. Run 'zeroclaw gateway' to connect.");
+    Ok(())
 }
 
 fn format_expiry(profile: &auth::profiles::AuthProfile) -> String {

@@ -1755,6 +1755,37 @@ pub struct GatewayConfig {
     /// Node-control protocol scaffold (`[gateway.node_control]`).
     #[serde(default)]
     pub node_control: NodeControlConfig,
+
+    /// MCP WebSocket hub connection (`[gateway.mcp_hub]`).
+    /// When set, DTBClaw connects outbound to datumbridge-mcp-ws-hub for scale mode.
+    #[serde(default)]
+    pub mcp_hub: McpHubConfig,
+}
+
+/// MCP hub connection config (`[gateway.mcp_hub]`).
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct McpHubConfig {
+    /// Hub base URL (e.g. http://localhost:8005). Env override: MCP_HUB_URL.
+    #[serde(default)]
+    pub url: Option<String>,
+
+    /// Device ID for this client. Env override: MCP_DEVICE_ID.
+    #[serde(default)]
+    pub device_id: Option<String>,
+
+    /// Server-generated token from `zeroclaw register`. Env override: MCP_HUB_TOKEN.
+    #[serde(default)]
+    pub token: Option<String>,
+}
+
+impl Default for McpHubConfig {
+    fn default() -> Self {
+        Self {
+            url: None,
+            device_id: None,
+            token: None,
+        }
+    }
 }
 
 /// Node-control scaffold settings under `[gateway.node_control]`.
@@ -1822,6 +1853,7 @@ impl Default for GatewayConfig {
             idempotency_ttl_secs: default_idempotency_ttl_secs(),
             idempotency_max_keys: default_gateway_idempotency_max_keys(),
             node_control: NodeControlConfig::default(),
+            mcp_hub: McpHubConfig::default(),
         }
     }
 }
@@ -11513,6 +11545,7 @@ channel_id = "C123"
                 auth_token: Some("node-token".into()),
                 allowed_node_ids: vec!["node-1".into(), "node-2".into()],
             },
+            mcp_hub: McpHubConfig::default(),
         };
         let toml_str = toml::to_string(&g).unwrap();
         let parsed: GatewayConfig = toml::from_str(&toml_str).unwrap();
