@@ -1776,6 +1776,10 @@ pub struct McpHubConfig {
     /// Server-generated token from `zeroclaw register`. Env override: MCP_HUB_TOKEN.
     #[serde(default)]
     pub token: Option<String>,
+
+    /// Human-readable device name (auto-detected from hostname during registration).
+    #[serde(default)]
+    pub device_name: Option<String>,
 }
 
 impl Default for McpHubConfig {
@@ -1784,6 +1788,7 @@ impl Default for McpHubConfig {
             url: None,
             device_id: None,
             token: None,
+            device_name: None,
         }
     }
 }

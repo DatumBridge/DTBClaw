@@ -28,6 +28,7 @@ pub mod cli_discovery;
 pub mod composio;
 pub mod content_search;
 pub mod cron_add;
+pub mod cursor_cli;
 pub mod cron_list;
 pub mod cron_remove;
 pub mod cron_run;
@@ -99,6 +100,7 @@ pub use channel_ack_config::ChannelAckConfigTool;
 pub use composio::ComposioTool;
 pub use content_search::ContentSearchTool;
 pub use cron_add::CronAddTool;
+pub use cursor_cli::CursorCliTool;
 pub use cron_list::CronListTool;
 pub use cron_remove::CronRemoveTool;
 pub use cron_run::CronRunTool;
@@ -392,6 +394,10 @@ pub fn all_tools_with_runtime(
             Some(syscall_detector),
         )));
         tool_arcs.push(Arc::new(GitOperationsTool::new(
+            security.clone(),
+            workspace_dir.to_path_buf(),
+        )));
+        tool_arcs.push(Arc::new(CursorCliTool::new(
             security.clone(),
             workspace_dir.to_path_buf(),
         )));

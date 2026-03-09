@@ -1765,6 +1765,29 @@ fn extract_openai_account_id_for_profile(access_token: &str) -> Option<String> {
     account_id
 }
 
+fn collect_device_info() -> (String, String, String) {
+    let device_name = hostname::get()
+        .map(|h| h.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    let device_ip = std::net::UdpSocket::bind("0.0.0.0:0")
+        .ok()
+        .and_then(|s| {
+            s.connect("8.8.8.8:80").ok()?;
+            s.local_addr().ok()
+        })
+        .map(|a| a.ip().to_string())
+        .unwrap_or_default();
+
+    let device_mac = mac_address::get_mac_address()
+        .ok()
+        .flatten()
+        .map(|m| m.to_string())
+        .unwrap_or_default();
+
+    (device_name, device_ip, device_mac)
+}
+
 async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()> {
     let hub_url = hub_url_arg
         .filter(|s| !s.is_empty())
@@ -1776,6 +1799,9 @@ async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()
         )
     })?;
     let base = hub_url.trim_end_matches('/');
+
+    let (device_name, device_ip, device_mac) = collect_device_info();
+    println!("Device: {device_name} ({device_ip}, MAC {device_mac})");
 
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(30))
@@ -1813,10 +1839,15 @@ async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()
 
     let code = input.trim();
 
-    // Confirm pairing: POST /api/v1/devices/register/confirm
+    // Confirm pairing with device info: POST /api/v1/devices/register/confirm
     let confirm_resp = client
         .post(format!("{base}/api/v1/devices/register/confirm"))
-        .json(&serde_json::json!({ "pairing_code": code }))
+        .json(&serde_json::json!({
+            "pairing_code": code,
+            "device_name": device_name,
+            "device_ip": device_ip,
+            "device_mac": device_mac,
+        }))
         .send()
         .await
         .context("Failed to confirm pairing")?;
@@ -1840,9 +1871,10 @@ async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()
     persisted.gateway.mcp_hub.url = Some(base.to_string());
     persisted.gateway.mcp_hub.device_id = Some(device_id.to_string());
     persisted.gateway.mcp_hub.token = Some(token.to_string());
+    persisted.gateway.mcp_hub.device_name = Some(device_name.clone());
     persisted.save().await?;
 
-    println!("✅ Registered with hub: device_id={device_id}");
+    println!("✅ Registered with hub: device_id={device_id} name={device_name}");
     println!("   Credentials saved to config. Run 'zeroclaw gateway' to connect.");
     Ok(())
 }
