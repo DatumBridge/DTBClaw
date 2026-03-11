@@ -1,7 +1,7 @@
 final: prev: {
-  zeroclaw-web = final.callPackage ./web/package.nix { };
+  octoclaw-web = final.callPackage ./web/package.nix { };
 
-  zeroclaw = final.callPackage ./package.nix {
+  octoclaw = final.callPackage ./package.nix {
     rustToolchain = final.fenix.stable.withComponents [
       "cargo"
       "clippy"

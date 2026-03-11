@@ -15,6 +15,7 @@ export default defineConfig({
     outDir: "dist",
   },
   server: {
+    port: 5173,
     proxy: {
       "/api": {
         target: "http://localhost:5555",
@@ -23,6 +24,22 @@ export default defineConfig({
       "/ws": {
         target: "ws://localhost:5555",
         ws: true,
+      },
+      "/pair": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+      },
+      "/health": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+      },
+      "/v1": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
+      },
+      "/metrics": {
+        target: "http://localhost:5555",
+        changeOrigin: true,
       },
     },
   },

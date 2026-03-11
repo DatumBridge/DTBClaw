@@ -1,6 +1,6 @@
-# Αναφορά Εντολών ZeroClaw (CLI Reference)
+# Αναφορά Εντολών OctoClaw (CLI Reference)
 
-Αυτός ο οδηγός περιλαμβάνει το πλήρες σύνολο των εντολών που είναι διαθέσιμες στη διεπαφή γραμμής εντολών (CLI) του ZeroClaw.
+Αυτός ο οδηγός περιλαμβάνει το πλήρες σύνολο των εντολών που είναι διαθέσιμες στη διεπαφή γραμμής εντολών (CLI) του OctoClaw.
 
 Τελευταία ενημέρωση: 20 Φεβρουαρίου 2026.
 
@@ -10,7 +10,7 @@
 |:---|:---|
 | `onboard` | Εκκίνηση της διαδικασίας αρχικής διαμόρφωσης και εγγραφής. |
 | `agent` | Έναρξη αλληλεπίδρασης με τον πράκτορα AI (Interactive Mode). |
-| `daemon` | Εκτέλεση του ZeroClaw ως διεργασία παρασκηνίου (Background Process). |
+| `daemon` | Εκτέλεση του OctoClaw ως διεργασία παρασκηνίου (Background Process). |
 | `service` | Διαχείριση της υπηρεσίας συστήματος (System Service). |
 | `doctor` | Εκτέλεση διαγνωστικών ελέγχων ακεραιότητας και συνδεσιμότητας. |
 | `status` | Προβολή της τρέχουσας κατάστασης και των ενεργών ρυθμίσεων. |
@@ -27,54 +27,54 @@
 
 ### 1. `onboard` (Αρχική Διαμόρφωση)
 
-- `zeroclaw onboard --interactive`: Διαδραστική καθοδήγηση για τη ρύθμιση του συστήματος.
-- `zeroclaw onboard --channels-only`: Εστιασμένη διαμόρφωση αποκλειστικά για τα κανάλια επικοινωνίας.
+- `octoclaw onboard --interactive`: Διαδραστική καθοδήγηση για τη ρύθμιση του συστήματος.
+- `octoclaw onboard --channels-only`: Εστιασμένη διαμόρφωση αποκλειστικά για τα κανάλια επικοινωνίας.
 
 ### 2. `agent` (Διαδραστική Λειτουργία)
 
-- `zeroclaw agent`: Έναρξη τυπικής συνομιλίας.
-- `zeroclaw agent -m "<μήνυμα>"`: Άμεση αποστολή εντολής/μηνύματος στον πράκτορα.
+- `octoclaw agent`: Έναρξη τυπικής συνομιλίας.
+- `octoclaw agent -m "<μήνυμα>"`: Άμεση αποστολή εντολής/μηνύματος στον πράκτορα.
 
 > [!TIP]
 > Κατά τη διάρκεια της συνομιλίας, μπορείτε να αιτηθείτε την αλλαγή του μοντέλου (π.χ. "use gpt-4") και ο πράκτορας θα προσαρμόσει τις ρυθμίσεις του δυναμικά.
 
 ### 2.1 `gateway` / `daemon`
 
-- `zeroclaw gateway [--host <HOST>] [--port <PORT>] [--new-pairing]`
-- `zeroclaw daemon [--host <HOST>] [--port <PORT>]`
+- `octoclaw gateway [--host <HOST>] [--port <PORT>] [--new-pairing]`
+- `octoclaw daemon [--host <HOST>] [--port <PORT>]`
 - Το `--new-pairing` καθαρίζει όλα τα αποθηκευμένα paired tokens και δημιουργεί νέο pairing code κατά την εκκίνηση του gateway.
 
 ### 2.2 OpenClaw Migration Surface
 
-- `zeroclaw onboard --migrate-openclaw`
-- `zeroclaw onboard --migrate-openclaw --openclaw-source <PATH> --openclaw-config <PATH>`
-- `zeroclaw migrate openclaw --dry-run`
-- `zeroclaw migrate openclaw`
+- `octoclaw onboard --migrate-openclaw`
+- `octoclaw onboard --migrate-openclaw --openclaw-source <PATH> --openclaw-config <PATH>`
+- `octoclaw migrate openclaw --dry-run`
+- `octoclaw migrate openclaw`
 
 Σημείωση: στο agent runtime υπάρχει επίσης το εργαλείο `openclaw_migration` για controlled preview/apply migration flows.
 
 ### 3. `cron` (Προγραμματισμός Εργασιών)
 
 Δυνατότητα αυτοματισμού εντολών:
-- `zeroclaw cron add "0 9 * * *" "echo Daily Setup"`: Εκτέλεση καθημερινά στις 09:00.
-- `zeroclaw cron once "1h" "zeroclaw status"`: Προγραμματισμός εκτέλεσης μετά από μία ώρα.
+- `octoclaw cron add "0 9 * * *" "echo Daily Setup"`: Εκτέλεση καθημερινά στις 09:00.
+- `octoclaw cron once "1h" "octoclaw status"`: Προγραμματισμός εκτέλεσης μετά από μία ώρα.
 
 ### 4. `doctor` (Διάγνωση Συστήματος)
 
-Χρησιμοποιήστε την εντολή `zeroclaw doctor` για την επαλήθευση της ορθής λειτουργίας των εξαρτήσεων, της πρόσβασης στο διαδίκτυο και της εγκυρότητας του αρχείου ρυθμίσεων.
+Χρησιμοποιήστε την εντολή `octoclaw doctor` για την επαλήθευση της ορθής λειτουργίας των εξαρτήσεων, της πρόσβασης στο διαδίκτυο και της εγκυρότητας του αρχείου ρυθμίσεων.
 
 ### 5. `skills` (Επεκτασιμότητα)
 
-- `zeroclaw skills list`: Προβολή εγκατεστημένων δεξιοτήτων.
-- `zeroclaw skills install <source>`: Εγκατάσταση νέας δεξιότητας από εξωτερική πηγή.
+- `octoclaw skills list`: Προβολή εγκατεστημένων δεξιοτήτων.
+- `octoclaw skills install <source>`: Εγκατάσταση νέας δεξιότητας από εξωτερική πηγή.
 
 > [!NOTE]
-> Το ZeroClaw εφαρμόζει αυτόματη ανάλυση κώδικα (security scanning) σε κάθε νέα δεξιότητα πριν την ενεργοποίησή της για την αποφυγή εκτέλεσης κακόβουλου λογισμικού.
+> Το OctoClaw εφαρμόζει αυτόματη ανάλυση κώδικα (security scanning) σε κάθε νέα δεξιότητα πριν την ενεργοποίησή της για την αποφυγή εκτέλεσης κακόβουλου λογισμικού.
 
 ---
 
 ## Βοήθεια και Τεκμηρίωση
 
 Για αναλυτικές πληροφορίες σχετικά με τις παραμέτρους κάθε εντολής, χρησιμοποιήστε το flag `--help`:
-`zeroclaw <command> --help`
-(π.χ. `zeroclaw onboard --help`)
+`octoclaw <command> --help`
+(π.χ. `octoclaw onboard --help`)

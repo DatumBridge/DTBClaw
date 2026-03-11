@@ -1,4 +1,4 @@
-# ZeroClaw Android - Binary Size Optimization
+# OctoClaw Android - Binary Size Optimization
 
 ## Target Sizes
 

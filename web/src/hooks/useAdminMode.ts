@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-const ADMIN_STORAGE_KEY = 'zeroclaw_admin_mode';
+const ADMIN_STORAGE_KEY = 'octoclaw_admin_mode';
 
 interface AdminContextType {
   isAdmin: boolean;

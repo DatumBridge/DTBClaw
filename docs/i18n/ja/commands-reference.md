@@ -1,6 +1,6 @@
 # コマンドリファレンス（日本語）
 
-このページは Wave 1 の初版ローカライズです。ZeroClaw CLI コマンドを素早く参照するための入口です。
+このページは Wave 1 の初版ローカライズです。OctoClaw CLI コマンドを素早く参照するための入口です。
 
 英語版原文:
 
@@ -19,5 +19,5 @@
 
 ## 最新更新
 
-- `zeroclaw gateway` は `--new-pairing` をサポートし、既存のペアリングトークンを消去して新しいペアリングコードを生成できます。
-- OpenClaw 移行関連の英語原文が更新されました: `zeroclaw onboard --migrate-openclaw`、`zeroclaw migrate openclaw`、およびエージェントツール `openclaw_migration`（ローカライズ追従は継続中）。
+- `octoclaw gateway` は `--new-pairing` をサポートし、既存のペアリングトークンを消去して新しいペアリングコードを生成できます。
+- OpenClaw 移行関連の英語原文が更新されました: `octoclaw onboard --migrate-openclaw`、`octoclaw migrate openclaw`、およびエージェントツール `openclaw_migration`（ローカライズ追従は継続中）。

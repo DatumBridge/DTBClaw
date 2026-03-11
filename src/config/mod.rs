@@ -122,7 +122,7 @@ mod tests {
             allowed_domains: vec!["api.openai.com".into()],
             max_response_size: 256_000,
             timeout_secs: 10,
-            user_agent: "zeroclaw-test".into(),
+            user_agent: "octoclaw-test".into(),
             credential_profiles: std::collections::HashMap::new(),
         };
 
@@ -130,6 +130,6 @@ mod tests {
         assert_eq!(cfg.allowed_domains, vec!["api.openai.com"]);
         assert_eq!(cfg.max_response_size, 256_000);
         assert_eq!(cfg.timeout_secs, 10);
-        assert_eq!(cfg.user_agent, "zeroclaw-test");
+        assert_eq!(cfg.user_agent, "octoclaw-test");
     }
 }

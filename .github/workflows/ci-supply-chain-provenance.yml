@@ -64,8 +64,8 @@ jobs:
                   mkdir -p artifacts
                   host_target="$(rustc -vV | sed -n 's/^host: //p')"
                   cargo build --profile release-fast --locked --target "$host_target"
-                  cp "target/${host_target}/release-fast/zeroclaw" "artifacts/zeroclaw-${host_target}"
-                  sha256sum "artifacts/zeroclaw-${host_target}" > "artifacts/zeroclaw-${host_target}.sha256"
+                  cp "target/${host_target}/release-fast/octoclaw" "artifacts/octoclaw-${host_target}"
+                  sha256sum "artifacts/octoclaw-${host_target}" > "artifacts/octoclaw-${host_target}.sha256"
 
             - name: Generate provenance statement
               shell: bash
@@ -73,8 +73,8 @@ jobs:
                   set -euo pipefail
                   host_target="$(rustc -vV | sed -n 's/^host: //p')"
                   python3 scripts/ci/generate_provenance.py \
-                    --artifact "artifacts/zeroclaw-${host_target}" \
-                    --subject-name "zeroclaw-${host_target}" \
+                    --artifact "artifacts/octoclaw-${host_target}" \
+                    --subject-name "octoclaw-${host_target}" \
                     --output "artifacts/provenance-${host_target}.intoto.json"
 
             - name: Install cosign
@@ -119,7 +119,7 @@ jobs:
                   {
                     echo "### Supply Chain Provenance"
                     echo "- Target: \`${host_target}\`"
-                    echo "- Artifact: \`artifacts/zeroclaw-${host_target}\`"
+                    echo "- Artifact: \`artifacts/octoclaw-${host_target}\`"
                     echo "- Statement: \`artifacts/provenance-${host_target}.intoto.json\`"
                     echo "- Signature: \`artifacts/provenance-${host_target}.intoto.json.sig\`"
                   } >> "$GITHUB_STEP_SUMMARY"

@@ -1,4 +1,4 @@
-title = "ZeroClaw gitleaks configuration"
+title = "OctoClaw gitleaks configuration"
 
 [allowlist]
 description = "Known false positives in detector fixtures and documentation examples"

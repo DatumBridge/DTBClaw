@@ -1,4 +1,4 @@
-# ZeroClaw Docs Structure Map
+# OctoClaw Docs Structure Map
 
 This page defines the canonical documentation layout and compatibility layers.
 

@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ZeroClaw"
+rootProject.name = "OctoClaw"
 include(":app")

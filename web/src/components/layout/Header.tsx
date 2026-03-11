@@ -39,7 +39,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   };
 
   return (
-    <header className="h-14 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 md:px-6">
+    <header className="h-14 bg-[#16161d] border-b border-[#2d2d3a] flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           type="button"

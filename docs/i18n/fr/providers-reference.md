@@ -35,6 +35,6 @@ Validation rapide:
 
 ```bash
 export STEP_API_KEY="your-stepfun-api-key"
-zeroclaw models refresh --provider stepfun
-zeroclaw agent --provider stepfun --model step-3.5-flash -m "ping"
+octoclaw models refresh --provider stepfun
+octoclaw agent --provider stepfun --model step-3.5-flash -m "ping"
 ```

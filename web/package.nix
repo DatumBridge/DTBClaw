@@ -1,6 +1,6 @@
 { buildNpmPackage, lib }:
 buildNpmPackage {
-  pname = "zeroclaw-web";
+  pname = "octoclaw-web";
   version = "0.1.0";
 
   src =

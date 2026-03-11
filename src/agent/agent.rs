@@ -682,7 +682,7 @@ impl Agent {
     }
 
     pub async fn run_interactive(&mut self) -> Result<()> {
-        println!("🦀 ZeroClaw Interactive Mode");
+        println!("🦀 OctoClaw Interactive Mode");
         println!("Type /quit to exit.\n");
 
         let (tx, mut rx) = tokio::sync::mpsc::channel(32);
@@ -1042,7 +1042,7 @@ mod tests {
 id = "agent-from-config"
 version = "1.0.0"
 module_path = "plugins/agent-from-config.wasm"
-wit_packages = ["zeroclaw:tools@1.0.0"]
+wit_packages = ["octoclaw:tools@1.0.0"]
 
 [[tools]]
 name = "__agent_from_config_plugin_tool"

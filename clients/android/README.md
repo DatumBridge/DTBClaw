@@ -1,13 +1,13 @@
-# ZeroClaw Android Client 🦀📱
+# OctoClaw Android Client 🦀📱
 
-Native Android client for ZeroClaw - run your autonomous AI assistant on Android.
+Native Android client for OctoClaw - run your autonomous AI assistant on Android.
 
 ## Features
 
 - 🚀 **Native Performance** - Kotlin/Jetpack Compose, not a webview
 - 🔋 **Battery Efficient** - WorkManager, Doze-aware, minimal wake locks
 - 🔐 **Security First** - Android Keystore for secrets, sandboxed execution
-- 🦀 **ZeroClaw Core** - Full Rust binary via UniFFI/JNI
+- 🦀 **OctoClaw Core** - Full Rust binary via UniFFI/JNI
 - 🎨 **Material You** - Dynamic theming, modern Android UX
 
 ## Requirements
@@ -55,13 +55,13 @@ cargo ndk -t arm64-v8a -o app/src/main/jniLibs build --release
 │  UI (Jetpack Compose)               │
 ├─────────────────────────────────────┤
 │  Service Layer (Kotlin)             │
-│  ├─ ZeroClawService                 │
+│  ├─ OctoClawService                 │
 │  ├─ NotificationHandler             │
 │  └─ WorkManager Jobs                │
 ├─────────────────────────────────────┤
 │  Bridge (UniFFI)                    │
 ├─────────────────────────────────────┤
-│  Native (libzeroclaw.so)            │
+│  Native (liboctoclaw.so)            │
 └─────────────────────────────────────┘
 ```
 
@@ -105,4 +105,4 @@ See the RFC in issue discussions for design decisions.
 
 ## License
 
-Same as ZeroClaw (MIT/Apache-2.0)
+Same as OctoClaw (MIT/Apache-2.0)

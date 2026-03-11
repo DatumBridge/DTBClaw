@@ -1,20 +1,20 @@
 # Οδηγός Ενημέρωσης και Απεγκατάστασης στο macOS
 
-Αυτή η σελίδα τεκμηριώνει τις υποστηριζόμενες διαδικασίες ενημέρωσης και απεγκατάστασης του ZeroClaw στο macOS (OS X).
+Αυτή η σελίδα τεκμηριώνει τις υποστηριζόμενες διαδικασίες ενημέρωσης και απεγκατάστασης του OctoClaw στο macOS (OS X).
 
 Τελευταία επαλήθευση: **22 Φεβρουαρίου 2026**.
 
 ## 1) Έλεγχος τρέχουσας μεθόδου εγκατάστασης
 
 ```bash
-which zeroclaw
-zeroclaw --version
+which octoclaw
+octoclaw --version
 ```
 
 Τυπικές τοποθεσίες:
 
-- Homebrew: `/opt/homebrew/bin/zeroclaw` (Apple Silicon) ή `/usr/local/bin/zeroclaw` (Intel)
-- Cargo/bootstrap/χειροκίνητη: `~/.cargo/bin/zeroclaw`
+- Homebrew: `/opt/homebrew/bin/octoclaw` (Apple Silicon) ή `/usr/local/bin/octoclaw` (Intel)
+- Cargo/bootstrap/χειροκίνητη: `~/.cargo/bin/octoclaw`
 
 Αν υπάρχουν και οι δύο, η σειρά `PATH` του shell σας καθορίζει ποια εκτελείται.
 
@@ -24,8 +24,8 @@ zeroclaw --version
 
 ```bash
 brew update
-brew upgrade zeroclaw
-zeroclaw --version
+brew upgrade octoclaw
+octoclaw --version
 ```
 
 ### Β) Εγκατάσταση μέσω Clone + bootstrap
@@ -35,7 +35,7 @@ zeroclaw --version
 ```bash
 git pull --ff-only
 ./bootstrap.sh --prefer-prebuilt
-zeroclaw --version
+octoclaw --version
 ```
 
 Αν θέλετε ενημέρωση μόνο από πηγαίο κώδικα:
@@ -43,7 +43,7 @@ zeroclaw --version
 ```bash
 git pull --ff-only
 cargo install --path . --force --locked
-zeroclaw --version
+octoclaw --version
 ```
 
 ### Γ) Χειροκίνητη εγκατάσταση προκατασκευασμένου binary
@@ -51,7 +51,7 @@ zeroclaw --version
 Επαναλάβετε τη ροή λήψης/εγκατάστασης με το πιο πρόσφατο αρχείο έκδοσης και επαληθεύστε:
 
 ```bash
-zeroclaw --version
+octoclaw --version
 ```
 
 ## 3) Απεγκατάσταση στο macOS
@@ -61,27 +61,27 @@ zeroclaw --version
 Αυτό αποτρέπει τη συνέχεια εκτέλεσης του daemon μετά την αφαίρεση του binary.
 
 ```bash
-zeroclaw service stop || true
-zeroclaw service uninstall || true
+octoclaw service stop || true
+octoclaw service uninstall || true
 ```
 
 Αντικείμενα υπηρεσίας που αφαιρούνται από την `service uninstall`:
 
-- `~/Library/LaunchAgents/com.zeroclaw.daemon.plist`
+- `~/Library/LaunchAgents/com.octoclaw.daemon.plist`
 
 ### Β) Αφαίρεση binary ανά μέθοδο εγκατάστασης
 
 Homebrew:
 
 ```bash
-brew uninstall zeroclaw
+brew uninstall octoclaw
 ```
 
-Cargo/bootstrap/χειροκίνητη (`~/.cargo/bin/zeroclaw`):
+Cargo/bootstrap/χειροκίνητη (`~/.cargo/bin/octoclaw`):
 
 ```bash
-cargo uninstall zeroclaw || true
-rm -f ~/.cargo/bin/zeroclaw
+cargo uninstall octoclaw || true
+rm -f ~/.cargo/bin/octoclaw
 ```
 
 ### Γ) Προαιρετικά: αφαίρεση τοπικών δεδομένων εκτέλεσης
@@ -89,20 +89,20 @@ rm -f ~/.cargo/bin/zeroclaw
 Εκτελέστε αυτό μόνο αν θέλετε πλήρη εκκαθάριση ρυθμίσεων, προφίλ auth, logs και κατάστασης workspace.
 
 ```bash
-rm -rf ~/.zeroclaw
+rm -rf ~/.octoclaw
 ```
 
 ## 4) Επαλήθευση ολοκλήρωσης απεγκατάστασης
 
 ```bash
-command -v zeroclaw || echo "zeroclaw binary not found"
-pgrep -fl zeroclaw || echo "No running zeroclaw process"
+command -v octoclaw || echo "octoclaw binary not found"
+pgrep -fl octoclaw || echo "No running octoclaw process"
 ```
 
 Αν το `pgrep` εξακολουθεί να βρίσκει διεργασία, σταματήστε την χειροκίνητα και ελέγξτε ξανά:
 
 ```bash
-pkill -f zeroclaw
+pkill -f octoclaw
 ```
 
 ## Σχετικά Έγγραφα

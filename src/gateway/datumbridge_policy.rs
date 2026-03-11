@@ -1,11 +1,11 @@
-//! DatumBridge master policy — constraints ZeroClaw (slave) must enforce.
+//! DatumBridge master policy — constraints OctoClaw (slave) must enforce.
 //!
 //! Option A: Policy is carried in WebSocket message payload.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
-/// Policy constraints from DatumBridge (master) that ZeroClaw must enforce.
+/// Policy constraints from DatumBridge (master) that OctoClaw must enforce.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DatumbridgePolicy {
     /// Only these tools are available. If empty, all tools except forbidden are allowed.

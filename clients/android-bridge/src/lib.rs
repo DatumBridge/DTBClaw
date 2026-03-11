@@ -1,8 +1,8 @@
 #![forbid(unsafe_code)]
 
-//! ZeroClaw Android Bridge
+//! OctoClaw Android Bridge
 //!
-//! This crate provides UniFFI bindings for ZeroClaw to be used from Kotlin/Android.
+//! This crate provides UniFFI bindings for OctoClaw to be used from Kotlin/Android.
 //! It exposes a simplified API for:
 //! - Starting/stopping the gateway
 //! - Sending messages to the agent
@@ -37,9 +37,9 @@ pub enum AgentStatus {
     Error { message: String },
 }
 
-/// Configuration for the ZeroClaw agent
+/// Configuration for the OctoClaw agent
 #[derive(Debug, Clone, uniffi::Record)]
-pub struct ZeroClawConfig {
+pub struct OctoClawConfig {
     pub data_dir: String,
     pub provider: String,
     pub model: String,
@@ -47,7 +47,7 @@ pub struct ZeroClawConfig {
     pub system_prompt: Option<String>,
 }
 
-impl Default for ZeroClawConfig {
+impl Default for OctoClawConfig {
     fn default() -> Self {
         Self {
             data_dir: String::new(),
@@ -76,10 +76,10 @@ pub struct SendResult {
     pub error: Option<String>,
 }
 
-/// Main ZeroClaw controller exposed to Android
+/// Main OctoClaw controller exposed to Android
 #[derive(uniffi::Object)]
-pub struct ZeroClawController {
-    config: Mutex<ZeroClawConfig>,
+pub struct OctoClawController {
+    config: Mutex<OctoClawConfig>,
     status: Mutex<AgentStatus>,
     messages: Mutex<Vec<ChatMessage>>,
     // TODO: Add actual gateway handle
@@ -87,13 +87,13 @@ pub struct ZeroClawController {
 }
 
 #[uniffi::export]
-impl ZeroClawController {
+impl OctoClawController {
     /// Create a new controller with the given config
     #[uniffi::constructor]
-    pub fn new(config: ZeroClawConfig) -> Arc<Self> {
+    pub fn new(config: OctoClawConfig) -> Arc<Self> {
         // Initialize logging
         let _ = tracing_subscriber::fmt()
-            .with_env_filter("zeroclaw=info")
+            .with_env_filter("octoclaw=info")
             .try_init();
 
         Arc::new(Self {
@@ -106,14 +106,14 @@ impl ZeroClawController {
     /// Create with default config
     #[uniffi::constructor]
     pub fn with_defaults(data_dir: String) -> Arc<Self> {
-        let mut config = ZeroClawConfig::default();
+        let mut config = OctoClawConfig::default();
         config.data_dir = data_dir;
         Self::new(config)
     }
 
-    /// Start the ZeroClaw gateway
-    pub fn start(&self) -> Result<(), ZeroClawError> {
-        let mut status = self.status.lock().map_err(|_| ZeroClawError::LockError)?;
+    /// Start the OctoClaw gateway
+    pub fn start(&self) -> Result<(), OctoClawError> {
+        let mut status = self.status.lock().map_err(|_| OctoClawError::LockError)?;
 
         if matches!(*status, AgentStatus::Running | AgentStatus::Starting) {
             return Ok(());
@@ -124,22 +124,22 @@ impl ZeroClawController {
 
         // TODO: Actually start the gateway
         // runtime().spawn(async move {
-        //     let config = zeroclaw::Config::load()?;
-        //     let gateway = zeroclaw::Gateway::new(config).await?;
+        //     let config = octoclaw::Config::load()?;
+        //     let gateway = octoclaw::Gateway::new(config).await?;
         //     gateway.run().await
         // });
 
         // For now, simulate successful start
-        let mut status = self.status.lock().map_err(|_| ZeroClawError::LockError)?;
+        let mut status = self.status.lock().map_err(|_| OctoClawError::LockError)?;
         *status = AgentStatus::Running;
 
-        tracing::info!("ZeroClaw gateway started");
+        tracing::info!("OctoClaw gateway started");
         Ok(())
     }
 
     /// Stop the gateway
-    pub fn stop(&self) -> Result<(), ZeroClawError> {
-        let mut status = self.status.lock().map_err(|_| ZeroClawError::LockError)?;
+    pub fn stop(&self) -> Result<(), OctoClawError> {
+        let mut status = self.status.lock().map_err(|_| OctoClawError::LockError)?;
 
         // TODO: Actually stop the gateway
         // if let Some(gateway) = self.gateway.lock()?.take() {
@@ -147,7 +147,7 @@ impl ZeroClawController {
         // }
 
         *status = AgentStatus::Stopped;
-        tracing::info!("ZeroClaw gateway stopped");
+        tracing::info!("OctoClaw gateway stopped");
         Ok(())
     }
 
@@ -209,18 +209,18 @@ impl ZeroClawController {
     }
 
     /// Update configuration
-    pub fn update_config(&self, config: ZeroClawConfig) -> Result<(), ZeroClawError> {
-        let mut current = self.config.lock().map_err(|_| ZeroClawError::LockError)?;
+    pub fn update_config(&self, config: OctoClawConfig) -> Result<(), OctoClawError> {
+        let mut current = self.config.lock().map_err(|_| OctoClawError::LockError)?;
         *current = config;
         Ok(())
     }
 
     /// Get current configuration
-    pub fn get_config(&self) -> Result<ZeroClawConfig, ZeroClawError> {
+    pub fn get_config(&self) -> Result<OctoClawConfig, OctoClawError> {
         self.config
             .lock()
             .map(|c| c.clone())
-            .map_err(|_| ZeroClawError::LockError)
+            .map_err(|_| OctoClawError::LockError)
     }
 
     /// Check if API key is configured
@@ -234,7 +234,7 @@ impl ZeroClawController {
 
 /// Errors that can occur in the bridge
 #[derive(Debug, Clone, uniffi::Error)]
-pub enum ZeroClawError {
+pub enum OctoClawError {
     NotInitialized,
     AlreadyRunning,
     ConfigError { message: String },
@@ -242,10 +242,10 @@ pub enum ZeroClawError {
     LockError,
 }
 
-impl std::fmt::Display for ZeroClawError {
+impl std::fmt::Display for OctoClawError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NotInitialized => write!(f, "ZeroClaw not initialized"),
+            Self::NotInitialized => write!(f, "OctoClaw not initialized"),
             Self::AlreadyRunning => write!(f, "Gateway already running"),
             Self::ConfigError { message } => write!(f, "Config error: {}", message),
             Self::GatewayError { message } => write!(f, "Gateway error: {}", message),
@@ -254,7 +254,7 @@ impl std::fmt::Display for ZeroClawError {
     }
 }
 
-impl std::error::Error for ZeroClawError {}
+impl std::error::Error for OctoClawError {}
 
 // Helper functions
 fn uuid_v4() -> String {
@@ -280,13 +280,13 @@ mod tests {
 
     #[test]
     fn test_controller_creation() {
-        let controller = ZeroClawController::with_defaults("/tmp/zeroclaw".to_string());
+        let controller = OctoClawController::with_defaults("/tmp/octoclaw".to_string());
         assert!(matches!(controller.get_status(), AgentStatus::Stopped));
     }
 
     #[test]
     fn test_start_stop() {
-        let controller = ZeroClawController::with_defaults("/tmp/zeroclaw".to_string());
+        let controller = OctoClawController::with_defaults("/tmp/octoclaw".to_string());
         controller.start().unwrap();
         assert!(matches!(controller.get_status(), AgentStatus::Running));
         controller.stop().unwrap();
@@ -295,7 +295,7 @@ mod tests {
 
     #[test]
     fn test_send_message() {
-        let controller = ZeroClawController::with_defaults("/tmp/zeroclaw".to_string());
+        let controller = OctoClawController::with_defaults("/tmp/octoclaw".to_string());
         let result = controller.send_message("Hello".to_string());
         assert!(result.success);
 

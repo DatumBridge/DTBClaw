@@ -1,10 +1,10 @@
 /**
- * __SKILL_NAME__ — ZeroClaw Skill (TypeScript)
+ * __SKILL_NAME__ — OctoClaw Skill (TypeScript)
  *
  * Protocol: read JSON from stdin, write JSON result to stdout.
  * Build:    npm install && npm run build  →  tool.wasm
  * Requires: javy CLI  →  https://github.com/bytecodealliance/javy
- * Test:     zeroclaw skill test . --args '{"name":"ZeroClaw"}'
+ * Test:     octoclaw skill test . --args '{"name":"OctoClaw"}'
  */
 
 interface Args {
@@ -18,7 +18,7 @@ interface ToolResult {
 }
 
 function run(args: Args): ToolResult {
-  const greeting = `Hello, ${args.name}! Welcome to ZeroClaw skills.`;
+  const greeting = `Hello, ${args.name}! Welcome to OctoClaw skills.`;
   return { success: true, output: greeting };
 }
 

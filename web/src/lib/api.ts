@@ -48,7 +48,7 @@ export async function apiFetch<T = unknown>(
 
   if (response.status === 401) {
     clearToken();
-    window.dispatchEvent(new Event('zeroclaw-unauthorized'));
+    window.dispatchEvent(new Event('octoclaw-unauthorized'));
     throw new UnauthorizedError();
   }
 

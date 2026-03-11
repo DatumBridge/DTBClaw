@@ -819,14 +819,14 @@ mod tests {
     #[test]
     fn resolve_credential_profile_injects_env_backed_header() {
         let test_secret = "test-credential-value-12345";
-        std::env::set_var("ZEROCLAW_TEST_HTTP_CREDENTIAL", test_secret);
+        std::env::set_var("OCTOCLAW_TEST_HTTP_CREDENTIAL", test_secret);
 
         let mut profiles = HashMap::new();
         profiles.insert(
             "github".to_string(),
             HttpRequestCredentialProfile {
                 header_name: "Authorization".to_string(),
-                env_var: "ZEROCLAW_TEST_HTTP_CREDENTIAL".to_string(),
+                env_var: "OCTOCLAW_TEST_HTTP_CREDENTIAL".to_string(),
                 value_prefix: "Bearer ".to_string(),
             },
         );
@@ -851,7 +851,7 @@ mod tests {
         assert!(sensitive_values.contains(&test_secret.to_string()));
         assert!(sensitive_values.contains(&format!("Bearer {test_secret}")));
 
-        std::env::remove_var("ZEROCLAW_TEST_HTTP_CREDENTIAL");
+        std::env::remove_var("OCTOCLAW_TEST_HTTP_CREDENTIAL");
     }
 
     #[test]
@@ -861,7 +861,7 @@ mod tests {
             "missing".to_string(),
             HttpRequestCredentialProfile {
                 header_name: "Authorization".to_string(),
-                env_var: "ZEROCLAW_TEST_MISSING_HTTP_REQUEST_TOKEN".to_string(),
+                env_var: "OCTOCLAW_TEST_MISSING_HTTP_REQUEST_TOKEN".to_string(),
                 value_prefix: "Bearer ".to_string(),
             },
         );
@@ -880,7 +880,7 @@ mod tests {
             .resolve_credential_profile("missing")
             .expect_err("missing env var should fail")
             .to_string();
-        assert!(err.contains("ZEROCLAW_TEST_MISSING_HTTP_REQUEST_TOKEN"));
+        assert!(err.contains("OCTOCLAW_TEST_MISSING_HTTP_REQUEST_TOKEN"));
     }
 
     #[test]

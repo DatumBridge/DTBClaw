@@ -109,7 +109,7 @@ Or via initial handshake message:
 
 ### Option C: Policy from Master API
 
-DatumBridge stores policy per workflow/session. ZeroClaw fetches policy from DatumBridge API before running:
+DatumBridge stores policy per workflow/session. OctoClaw fetches policy from DatumBridge API before running:
 
 ```text
 DTBClaw: GET https://datumbridge/api/v1/policy?session_id=...

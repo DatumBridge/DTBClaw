@@ -1,4 +1,4 @@
-# ZeroClaw i18n Completion Guide
+# OctoClaw i18n Completion Guide
 
 This guide defines how to keep multilingual documentation complete and consistent when docs change.
 

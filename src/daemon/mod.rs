@@ -9,13 +9,13 @@ use tokio::time::Duration;
 const STATUS_FLUSH_SECONDS: u64 = 5;
 
 pub async fn run(config: Config, host: String, port: u16) -> Result<()> {
-    // Pre-flight: check if port is already in use by another zeroclaw daemon
+    // Pre-flight: check if port is already in use by another octoclaw daemon
     if let Err(_e) = check_port_available(&host, port).await {
         // Port is in use - check if it's our daemon
-        if is_zeroclaw_daemon_running(&host, port).await {
-            tracing::info!("ZeroClaw daemon already running on {host}:{port}");
-            println!("✓ ZeroClaw daemon already running on http://{host}:{port}");
-            println!("  Use 'zeroclaw restart' to restart, or 'zeroclaw status' to check health.");
+        if is_octoclaw_daemon_running(&host, port).await {
+            tracing::info!("OctoClaw daemon already running on {host}:{port}");
+            println!("✓ OctoClaw daemon already running on http://{host}:{port}");
+            println!("  Use 'octoclaw restart' to restart, or 'octoclaw status' to check health.");
             return Ok(());
         }
         // Something else is using the port
@@ -103,7 +103,7 @@ pub async fn run(config: Config, host: String, port: u16) -> Result<()> {
         tracing::info!("Cron disabled; scheduler supervisor not started");
     }
 
-    println!("🧠 ZeroClaw daemon started");
+    println!("🧠 OctoClaw daemon started");
     println!("   Gateway:  http://{host}:{port}");
     println!("   Components: gateway, channels, heartbeat, scheduler");
     println!("   Ctrl+C to stop");
@@ -393,8 +393,8 @@ async fn check_port_available(host: &str, port: u16) -> Result<()> {
     }
 }
 
-/// Check if a running daemon on this port is our zeroclaw daemon
-async fn is_zeroclaw_daemon_running(host: &str, port: u16) -> bool {
+/// Check if a running daemon on this port is our octoclaw daemon
+async fn is_octoclaw_daemon_running(host: &str, port: u16) -> bool {
     let url = format!("http://{}:{}/health", host, port);
     match reqwest::Client::builder()
         .timeout(Duration::from_secs(2))
@@ -688,7 +688,7 @@ mod tests {
             phone_number_id: None,
             verify_token: None,
             app_secret: None,
-            session_path: Some("~/.zeroclaw/state/whatsapp-web/session.db".into()),
+            session_path: Some("~/.octoclaw/state/whatsapp-web/session.db".into()),
             pair_phone: None,
             pair_code: None,
             allowed_numbers: vec!["*".into()],

@@ -1,14 +1,14 @@
 ## Android Phase 3 - Agent Integration
 
-This PR implements the Android client for ZeroClaw with full agent integration, including foreground service, Quick Settings tile, boot receiver, and background heartbeat support.
+This PR implements the Android client for OctoClaw with full agent integration, including foreground service, Quick Settings tile, boot receiver, and background heartbeat support.
 
 ### Changes
-- `ZeroClawApp.kt` - Application setup with notification channels and WorkManager
+- `OctoClawApp.kt` - Application setup with notification channels and WorkManager
 - `SettingsRepository.kt` - DataStore + EncryptedSharedPreferences for secure settings
 - `SettingsScreen.kt` - Compose UI for configuring the agent
 - `BootReceiver.kt` - Auto-start on boot when enabled
 - `HeartbeatWorker.kt` - Background periodic tasks via WorkManager
-- `ZeroClawTileService.kt` - Quick Settings tile for agent control
+- `OctoClawTileService.kt` - Quick Settings tile for agent control
 - `ShareHandler.kt` - Handle content shared from other apps
 - `ci-android.yml` - GitHub Actions workflow for Android builds
 - `proguard-rules.pro` - R8 optimization rules
@@ -25,7 +25,7 @@ This PR implements the Android client for ZeroClaw with full agent integration, 
 - [x] Kotlin Intrinsics null checks preserved in ProGuard rules
 - [x] HeartbeatWorker enforces 15-minute minimum and uses UPDATE policy
 - [x] SettingsScreen refreshes battery optimization state on resume
-- [x] ZeroClawApp listens for settings changes to update heartbeat schedule
+- [x] OctoClawApp listens for settings changes to update heartbeat schedule
 - [x] Trailing whitespace removed from all Kotlin files
 - [ ] Manual testing: Build and install on Android 14 device (pending)
 

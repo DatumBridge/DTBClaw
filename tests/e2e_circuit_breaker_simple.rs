@@ -5,7 +5,7 @@
 
 use std::sync::Arc;
 use std::time::Duration;
-use zeroclaw::providers::health::ProviderHealthTracker;
+use octoclaw::providers::health::ProviderHealthTracker;
 
 /// Simulates a provider response scenario
 struct MockProviderScenario {

@@ -1,6 +1,6 @@
-# ZeroClaw Commands Reference
+# OctoClaw Commands Reference
 
-This reference is derived from the current CLI surface (`zeroclaw --help`).
+This reference is derived from the current CLI surface (`octoclaw --help`).
 
 Last verified: **February 28, 2026**.
 
@@ -15,7 +15,7 @@ Last verified: **February 28, 2026**.
 | `service` | Manage user-level OS service lifecycle |
 | `doctor` | Run diagnostics and freshness checks |
 | `status` | Print current configuration and system summary |
-| `update` | Check or install latest ZeroClaw release |
+| `update` | Check or install latest OctoClaw release |
 | `estop` | Engage/resume emergency stop levels and inspect estop state |
 | `cron` | Manage scheduled tasks |
 | `models` | Refresh provider model catalogs |
@@ -34,15 +34,15 @@ Last verified: **February 28, 2026**.
 
 ### `onboard`
 
-- `zeroclaw onboard`
-- `zeroclaw onboard --interactive`
-- `zeroclaw onboard --channels-only`
-- `zeroclaw onboard --force`
-- `zeroclaw onboard --api-key <KEY> --provider <ID> --memory <sqlite|lucid|markdown|none>`
-- `zeroclaw onboard --api-key <KEY> --provider <ID> --model <MODEL_ID> --memory <sqlite|lucid|markdown|none>`
-- `zeroclaw onboard --api-key <KEY> --provider <ID> --model <MODEL_ID> --memory <sqlite|lucid|markdown|none> --force`
-- `zeroclaw onboard --migrate-openclaw`
-- `zeroclaw onboard --migrate-openclaw --openclaw-source <PATH> --openclaw-config <PATH>`
+- `octoclaw onboard`
+- `octoclaw onboard --interactive`
+- `octoclaw onboard --channels-only`
+- `octoclaw onboard --force`
+- `octoclaw onboard --api-key <KEY> --provider <ID> --memory <sqlite|lucid|markdown|none>`
+- `octoclaw onboard --api-key <KEY> --provider <ID> --model <MODEL_ID> --memory <sqlite|lucid|markdown|none>`
+- `octoclaw onboard --api-key <KEY> --provider <ID> --model <MODEL_ID> --memory <sqlite|lucid|markdown|none> --force`
+- `octoclaw onboard --migrate-openclaw`
+- `octoclaw onboard --migrate-openclaw --openclaw-source <PATH> --openclaw-config <PATH>`
 
 `onboard` safety behavior:
 
@@ -50,16 +50,16 @@ Last verified: **February 28, 2026**.
   - Full onboarding (overwrite `config.toml`)
   - Provider-only update (update provider/model/API key while preserving existing channels, tunnel, memory, hooks, and other settings)
 - In non-interactive environments, existing `config.toml` causes a safe refusal unless `--force` is passed.
-- Use `zeroclaw onboard --channels-only` when you only need to rotate channel tokens/allowlists.
-- OpenClaw migration mode is merge-first by design: existing ZeroClaw data/config is preserved, missing fields are filled, and list-like values are union-merged with de-duplication.
+- Use `octoclaw onboard --channels-only` when you only need to rotate channel tokens/allowlists.
+- OpenClaw migration mode is merge-first by design: existing OctoClaw data/config is preserved, missing fields are filled, and list-like values are union-merged with de-duplication.
 - Interactive onboarding can auto-detect `~/.openclaw` and prompt for optional merge migration even without `--migrate-openclaw`.
 
 ### `agent`
 
-- `zeroclaw agent`
-- `zeroclaw agent -m "Hello"`
-- `zeroclaw agent --provider <ID> --model <MODEL> --temperature <0.0-2.0>`
-- `zeroclaw agent --peripheral <board:path>`
+- `octoclaw agent`
+- `octoclaw agent -m "Hello"`
+- `octoclaw agent --provider <ID> --model <MODEL> --temperature <0.0-2.0>`
+- `octoclaw agent --peripheral <board:path>`
 
 Tip:
 
@@ -72,23 +72,23 @@ Tip:
 
 ### `gateway` / `daemon`
 
-- `zeroclaw gateway [--host <HOST>] [--port <PORT>] [--new-pairing]`
-- `zeroclaw daemon [--host <HOST>] [--port <PORT>]`
+- `octoclaw gateway [--host <HOST>] [--port <PORT>] [--new-pairing]`
+- `octoclaw daemon [--host <HOST>] [--port <PORT>]`
 
 `--new-pairing` clears all stored paired tokens and forces generation of a fresh pairing code on gateway startup.
 
 ### `estop`
 
-- `zeroclaw estop` (engage `kill-all`)
-- `zeroclaw estop --level network-kill`
-- `zeroclaw estop --level domain-block --domain "*.chase.com" [--domain "*.paypal.com"]`
-- `zeroclaw estop --level tool-freeze --tool shell [--tool browser]`
-- `zeroclaw estop status`
-- `zeroclaw estop resume`
-- `zeroclaw estop resume --network`
-- `zeroclaw estop resume --domain "*.chase.com"`
-- `zeroclaw estop resume --tool shell`
-- `zeroclaw estop resume --otp <123456>`
+- `octoclaw estop` (engage `kill-all`)
+- `octoclaw estop --level network-kill`
+- `octoclaw estop --level domain-block --domain "*.chase.com" [--domain "*.paypal.com"]`
+- `octoclaw estop --level tool-freeze --tool shell [--tool browser]`
+- `octoclaw estop status`
+- `octoclaw estop resume`
+- `octoclaw estop resume --network`
+- `octoclaw estop resume --domain "*.chase.com"`
+- `octoclaw estop resume --tool shell`
+- `octoclaw estop resume --otp <123456>`
 
 Notes:
 
@@ -98,35 +98,35 @@ Notes:
 
 ### `service`
 
-- `zeroclaw service install`
-- `zeroclaw service start`
-- `zeroclaw service stop`
-- `zeroclaw service restart`
-- `zeroclaw service status`
-- `zeroclaw service uninstall`
+- `octoclaw service install`
+- `octoclaw service start`
+- `octoclaw service stop`
+- `octoclaw service restart`
+- `octoclaw service status`
+- `octoclaw service uninstall`
 
 ### `update`
 
-- `zeroclaw update --check` (check for new release, no install)
-- `zeroclaw update` (install latest release binary for current platform)
-- `zeroclaw update --force` (reinstall even if current version matches latest)
-- `zeroclaw update --instructions` (print install-method-specific guidance)
+- `octoclaw update --check` (check for new release, no install)
+- `octoclaw update` (install latest release binary for current platform)
+- `octoclaw update --force` (reinstall even if current version matches latest)
+- `octoclaw update --instructions` (print install-method-specific guidance)
 
 Notes:
 
-- If ZeroClaw is installed via Homebrew, prefer `brew upgrade zeroclaw`.
+- If OctoClaw is installed via Homebrew, prefer `brew upgrade octoclaw`.
 - `update --instructions` detects common install methods and prints the safest path.
 
 ### `cron`
 
-- `zeroclaw cron list`
-- `zeroclaw cron add <expr> [--tz <IANA_TZ>] <command>`
-- `zeroclaw cron add-at <rfc3339_timestamp> <command>`
-- `zeroclaw cron add-every <every_ms> <command>`
-- `zeroclaw cron once <delay> <command>`
-- `zeroclaw cron remove <id>`
-- `zeroclaw cron pause <id>`
-- `zeroclaw cron resume <id>`
+- `octoclaw cron list`
+- `octoclaw cron add <expr> [--tz <IANA_TZ>] <command>`
+- `octoclaw cron add-at <rfc3339_timestamp> <command>`
+- `octoclaw cron add-every <every_ms> <command>`
+- `octoclaw cron once <delay> <command>`
+- `octoclaw cron remove <id>`
+- `octoclaw cron pause <id>`
+- `octoclaw cron resume <id>`
 
 Notes:
 
@@ -135,9 +135,9 @@ Notes:
 
 ### `models`
 
-- `zeroclaw models refresh`
-- `zeroclaw models refresh --provider <ID>`
-- `zeroclaw models refresh --force`
+- `octoclaw models refresh`
+- `octoclaw models refresh --provider <ID>`
+- `octoclaw models refresh --force`
 
 `models refresh` currently supports live catalog refresh for provider IDs: `openrouter`, `openai`, `anthropic`, `groq`, `mistral`, `deepseek`, `xai`, `together-ai`, `gemini`, `ollama`, `llamacpp`, `sglang`, `vllm`, `astrai`, `venice`, `fireworks`, `cohere`, `moonshot`, `stepfun`, `glm`, `zai`, `qwen`, `volcengine` (`doubao`/`ark` aliases), `siliconflow`, and `nvidia`.
 
@@ -153,33 +153,33 @@ Runs a Rust integration test (`tests/gemini_model_availability.rs`) that verifie
 
 ### `providers-quota`
 
-- `zeroclaw providers-quota` — show quota status for all configured providers
-- `zeroclaw providers-quota --provider gemini` — show quota for a specific provider
-- `zeroclaw providers-quota --format json` — JSON output for scripting
+- `octoclaw providers-quota` — show quota status for all configured providers
+- `octoclaw providers-quota --provider gemini` — show quota for a specific provider
+- `octoclaw providers-quota --format json` — JSON output for scripting
 
 Displays provider quota usage, rate limits, circuit breaker state, and OAuth profile health.
 
 ### `doctor`
 
-- `zeroclaw doctor`
-- `zeroclaw doctor models [--provider <ID>] [--use-cache]`
-- `zeroclaw doctor traces [--limit <N>] [--event <TYPE>] [--contains <TEXT>]`
-- `zeroclaw doctor traces --id <TRACE_ID>`
+- `octoclaw doctor`
+- `octoclaw doctor models [--provider <ID>] [--use-cache]`
+- `octoclaw doctor traces [--limit <N>] [--event <TYPE>] [--contains <TEXT>]`
+- `octoclaw doctor traces --id <TRACE_ID>`
 
 Provider connectivity matrix CI/local helper:
 
-- `python3 scripts/ci/provider_connectivity_matrix.py --binary target/release-fast/zeroclaw --contract .github/connectivity/probe-contract.json`
+- `python3 scripts/ci/provider_connectivity_matrix.py --binary target/release-fast/octoclaw --contract .github/connectivity/probe-contract.json`
 
 `doctor traces` reads runtime tool/model diagnostics from `observability.runtime_trace_path`.
 
 ### `channel`
 
-- `zeroclaw channel list`
-- `zeroclaw channel start`
-- `zeroclaw channel doctor`
-- `zeroclaw channel bind-telegram <IDENTITY>`
-- `zeroclaw channel add <type> <json>`
-- `zeroclaw channel remove <name>`
+- `octoclaw channel list`
+- `octoclaw channel start`
+- `octoclaw channel doctor`
+- `octoclaw channel bind-telegram <IDENTITY>`
+- `octoclaw channel add <type> <json>`
+- `octoclaw channel remove <name>`
 
 Runtime in-chat commands while channel server is running:
 
@@ -213,7 +213,7 @@ Approval safety behavior:
 - Optional policy gate: `[autonomy].non_cli_approval_approvers` can restrict who may execute approval-management commands.
 
 Startup behavior for multiple channels:
-- `zeroclaw channel start` starts all configured channels in one process.
+- `octoclaw channel start` starts all configured channels in one process.
 - If one channel fails initialization, other channels continue to start.
 - If all configured channels fail initialization, startup exits with an error.
 
@@ -228,14 +228,14 @@ Channel runtime also watches `config.toml` and hot-applies updates to:
 
 ### `integrations`
 
-- `zeroclaw integrations info <name>`
+- `octoclaw integrations info <name>`
 
 ### `skills`
 
-- `zeroclaw skills list`
-- `zeroclaw skills audit <source_or_name>`
-- `zeroclaw skills install <source>`
-- `zeroclaw skills remove <name>`
+- `octoclaw skills list`
+- `octoclaw skills audit <source_or_name>`
+- `octoclaw skills install <source>`
+- `octoclaw skills remove <name>`
 
 `<source>` accepts:
 
@@ -253,13 +253,13 @@ Channel runtime also watches `config.toml` and hot-applies updates to:
 
 ```bash
 # Install by profile URL (slug extracted from last path segment)
-zeroclaw skill install https://clawhub.ai/steipete/summarize
+octoclaw skill install https://clawhub.ai/steipete/summarize
 
 # Install using short prefix
-zeroclaw skill install clawhub:summarize
+octoclaw skill install clawhub:summarize
 
 # Install from a zip already downloaded locally
-zeroclaw skill install ~/Downloads/summarize-1.0.0.zip
+octoclaw skill install ~/Downloads/summarize-1.0.0.zip
 ```
 
 If the ClawhHub API returns 429 (rate limit) or requires authentication, set `clawhub_token` in `[skills]` config (see [config reference](config-reference.md#skills)).
@@ -268,7 +268,7 @@ If the ClawhHub API returns 429 (rate limit) or requires authentication, set `cl
 - If the zip contains `_meta.json` (OpenClaw convention), name/version/author are read from it.
 - A minimal `SKILL.toml` is written automatically if neither `SKILL.toml` nor `SKILL.md` is present in the zip.
 
-Registry packages are installed to `~/.zeroclaw/workspace/skills/<name>/`.
+Registry packages are installed to `~/.octoclaw/workspace/skills/<name>/`.
 
 `skills install` always runs a built-in static security audit before the skill is accepted. The audit blocks:
 - symlinks inside the skill package
@@ -281,7 +281,7 @@ Registry packages are installed to `~/.zeroclaw/workspace/skills/<name>/`.
 Use `skills audit` to manually validate a candidate skill directory (or an installed skill by name) before sharing it.
 
 Workspace symlink policy:
-- Symlinked entries under `~/.zeroclaw/workspace/skills/` are blocked by default.
+- Symlinked entries under `~/.octoclaw/workspace/skills/` are blocked by default.
 - To allow shared local skill directories, set `[skills].trusted_skill_roots` in `config.toml`.
 - A symlinked skill is accepted only when its resolved canonical target is inside one of the trusted roots.
 
@@ -289,22 +289,22 @@ Skill manifests (`SKILL.toml`) support `prompts` and `[[tools]]`; both are injec
 
 ### `migrate`
 
-- `zeroclaw migrate openclaw [--source <path>] [--source-config <path>] [--dry-run] [--no-memory] [--no-config]`
+- `octoclaw migrate openclaw [--source <path>] [--source-config <path>] [--dry-run] [--no-memory] [--no-config]`
 
 `migrate openclaw` behavior:
 
 - Default mode migrates both memory and config/agents with merge-first semantics.
-- Existing ZeroClaw values are preserved; migration does not overwrite existing user content.
+- Existing OctoClaw values are preserved; migration does not overwrite existing user content.
 - Memory migration de-duplicates repeated content during merge while keeping existing entries intact.
 - `--dry-run` prints a migration report without writing data.
 - `--no-memory` or `--no-config` scopes migration to selected modules.
 
 ### `config`
 
-- `zeroclaw config show`
-- `zeroclaw config get <key>`
-- `zeroclaw config set <key> <value>`
-- `zeroclaw config schema`
+- `octoclaw config show`
+- `octoclaw config get <key>`
+- `octoclaw config set <key> <value>`
+- `octoclaw config schema`
 
 `config show` prints the full effective configuration as pretty JSON with secrets masked as `***REDACTED***`. Environment variable overrides are already applied.
 
@@ -316,33 +316,33 @@ Skill manifests (`SKILL.toml`) support `prompts` and `[[tools]]`; both are injec
 
 ### `completions`
 
-- `zeroclaw completions bash`
-- `zeroclaw completions fish`
-- `zeroclaw completions zsh`
-- `zeroclaw completions powershell`
-- `zeroclaw completions elvish`
+- `octoclaw completions bash`
+- `octoclaw completions fish`
+- `octoclaw completions zsh`
+- `octoclaw completions powershell`
+- `octoclaw completions elvish`
 
 `completions` is stdout-only by design so scripts can be sourced directly without log/warning contamination.
 
 ### `hardware`
 
-- `zeroclaw hardware discover`
-- `zeroclaw hardware introspect <path>`
-- `zeroclaw hardware info [--chip <chip_name>]`
+- `octoclaw hardware discover`
+- `octoclaw hardware introspect <path>`
+- `octoclaw hardware info [--chip <chip_name>]`
 
 ### `peripheral`
 
-- `zeroclaw peripheral list`
-- `zeroclaw peripheral add <board> <path>`
-- `zeroclaw peripheral flash [--port <serial_port>]`
-- `zeroclaw peripheral setup-uno-q [--host <ip_or_host>]`
-- `zeroclaw peripheral flash-nucleo`
+- `octoclaw peripheral list`
+- `octoclaw peripheral add <board> <path>`
+- `octoclaw peripheral flash [--port <serial_port>]`
+- `octoclaw peripheral setup-uno-q [--host <ip_or_host>]`
+- `octoclaw peripheral flash-nucleo`
 
 ## Validation Tip
 
 To verify docs against your current binary quickly:
 
 ```bash
-zeroclaw --help
-zeroclaw <command> --help
+octoclaw --help
+octoclaw <command> --help
 ```

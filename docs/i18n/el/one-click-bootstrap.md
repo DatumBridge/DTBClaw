@@ -1,21 +1,21 @@
 # Προετοιμασία με Ένα Κλικ (One-Click Bootstrap)
 
-Αυτός ο οδηγός περιγράφει την ταχύτερη μέθοδο για την εγκατάσταση και την αρχικοποίηση του ZeroClaw.
+Αυτός ο οδηγός περιγράφει την ταχύτερη μέθοδο για την εγκατάσταση και την αρχικοποίηση του OctoClaw.
 
 Τελευταία επαλήθευση: **20 Φεβρουαρίου 2026**.
 
 ## Επιλογή 0: Homebrew (macOS / Linux)
 
 ```bash
-brew install zeroclaw
+brew install octoclaw
 ```
 
 ## Επιλογή Α: Τοπικό Σενάριο (Προτεινόμενο)
 
 1. **Κλωνοποίηση του αποθετηρίου**:
    ```bash
-   git clone https://github.com/zeroclaw-labs/zeroclaw.git
-   cd zeroclaw
+   git clone https://github.com/octoclaw-labs/octoclaw.git
+   cd octoclaw
    ```
 2. **Εκτέλεση του bootstrap**:
    ```bash
@@ -57,7 +57,7 @@ brew install zeroclaw
 ## Επιλογή Β: Απομακρυσμένη Εκτέλεση
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/scripts/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/octoclaw-labs/octoclaw/main/scripts/bootstrap.sh | bash
 ```
 > [!IMPORTANT]
 > Για περιβάλλοντα υψηλής ασφάλειας, συνιστάται η **Επιλογή Α**, ώστε να μπορείτε να επιθεωρήσετε το σενάριο πριν από την εκτέλεση.
@@ -69,7 +69,7 @@ curl -fsSL https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/scripts
 ```bash
 ./bootstrap.sh --docker
 ```
-Το σενάριο θα δημιουργήσει μια τοπική εικόνα Docker και θα ξεκινήσει τη διαδικασία onboarding. Οι ρυθμίσεις αποθηκεύονται στον κατάλογο `./.zeroclaw-docker`.
+Το σενάριο θα δημιουργήσει μια τοπική εικόνα Docker και θα ξεκινήσει τη διαδικασία onboarding. Οι ρυθμίσεις αποθηκεύονται στον κατάλογο `./.octoclaw-docker`.
 
 ### Μη Διαδραστική Εισαγωγή
 

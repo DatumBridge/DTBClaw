@@ -55,10 +55,10 @@ function PairingDialog({ onPair }: { onPair: (code: string) => Promise<void> }) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <div className="bg-gray-900 rounded-xl p-8 w-full max-w-md border border-gray-800">
+    <div className="min-h-screen bg-[#0f0f14] flex items-center justify-center">
+      <div className="bg-[#1c1c26] rounded-2xl p-8 w-full max-w-md border border-[#2d2d3a] shadow-xl">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white mb-2">ZeroClaw</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">DatumBridge</h1>
           <p className="text-gray-400">Enter the pairing code from your terminal</p>
         </div>
         <form onSubmit={handleSubmit}>
@@ -67,7 +67,7 @@ function PairingDialog({ onPair }: { onPair: (code: string) => Promise<void> }) 
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="6-digit code"
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-center text-2xl tracking-widest focus:outline-none focus:border-blue-500 mb-4"
+            className="w-full px-4 py-3 bg-[#18181f] border border-[#2d2d3a] rounded-lg text-white text-center text-2xl tracking-widest focus:outline-none focus:border-indigo-500 mb-4"
             maxLength={6}
             autoFocus
           />
@@ -77,7 +77,7 @@ function PairingDialog({ onPair }: { onPair: (code: string) => Promise<void> }) 
           <button
             type="submit"
             disabled={loading || code.length < 6}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
           >
             {loading ? 'Pairing...' : 'Pair'}
           </button>
@@ -87,36 +87,8 @@ function PairingDialog({ onPair }: { onPair: (code: string) => Promise<void> }) 
   );
 }
 
-function AppContent() {
-  const { isAuthenticated, loading, pair, logout } = useAuth();
-  const [locale, setLocaleState] = useState<Locale>('tr');
-
-  const setAppLocale = (newLocale: Locale) => {
-    setLocaleState(newLocale);
-    setLocale(newLocale);
-  };
-
-  // Listen for 401 events to force logout
-  useEffect(() => {
-    const handler = () => {
-      logout();
-    };
-    window.addEventListener('zeroclaw-unauthorized', handler);
-    return () => window.removeEventListener('zeroclaw-unauthorized', handler);
-  }, [logout]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-400">Connecting...</p>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <PairingDialog onPair={pair} />;
-  }
-
+// Authenticated app shell — only mounted after login so hook count is stable.
+function AuthenticatedApp() {
   const [isAdmin, setIsAdmin] = useState(() => {
     if (consumeAdminFromURL()) {
       persistAdmin(true);
@@ -124,10 +96,16 @@ function AppContent() {
     }
     return getPersistedAdmin();
   });
+  const [locale, setLocaleState] = useState<Locale>('tr');
 
   const setAdmin = (value: boolean) => {
     persistAdmin(value);
     setIsAdmin(value);
+  };
+
+  const setAppLocale = (newLocale: Locale) => {
+    setLocaleState(newLocale);
+    setLocale(newLocale);
   };
 
   const adminOrHome = (el: React.ReactNode) =>
@@ -156,6 +134,33 @@ function AppContent() {
       </LocaleContext.Provider>
     </AdminContext.Provider>
   );
+}
+
+function AppContent() {
+  const { isAuthenticated, loading, pair, logout } = useAuth();
+
+  // Listen for 401 events to force logout — must run every render (same hook order).
+  useEffect(() => {
+    const handler = () => {
+      logout();
+    };
+    window.addEventListener('octoclaw-unauthorized', handler);
+    return () => window.removeEventListener('octoclaw-unauthorized', handler);
+  }, [logout]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0f0f14] flex items-center justify-center">
+        <p className="text-gray-400">Connecting...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <PairingDialog onPair={pair} />;
+  }
+
+  return <AuthenticatedApp />;
 }
 
 export default function App() {

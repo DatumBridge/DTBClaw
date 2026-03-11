@@ -1,4 +1,4 @@
-# Εγχειρίδιο Λειτουργιών ZeroClaw (Operations Runbook)
+# Εγχειρίδιο Λειτουργιών OctoClaw (Operations Runbook)
 
 Αυτό το εγχειρίδιο προορίζεται για τους διαχειριστές του συστήματος που είναι υπεύθυνοι για τη διαθεσιμότητα, την ασφάλεια και την απόκριση σε περιστατικά.
 
@@ -18,49 +18,49 @@
 
 | Λειτουργία | Εντολή | Χρήση |
 |:---|:---|:---|
-| Προσκήνιο (Foreground) | `zeroclaw daemon` | Τοπική αποσφαλμάτωση και δοκιμές. |
-| Πύλη (Gateway) | `zeroclaw gateway` | Έλεγχος τελικών σημείων (endpoints) webhook. |
-| Υπηρεσία Συστήματος | `zeroclaw service install && zeroclaw service start` | Μόνιμη εκτέλεση υπό τη διαχείριση του συστήματος. |
+| Προσκήνιο (Foreground) | `octoclaw daemon` | Τοπική αποσφαλμάτωση και δοκιμές. |
+| Πύλη (Gateway) | `octoclaw gateway` | Έλεγχος τελικών σημείων (endpoints) webhook. |
+| Υπηρεσία Συστήματος | `octoclaw service install && octoclaw service start` | Μόνιμη εκτέλεση υπό τη διαχείριση του συστήματος. |
 
 ## Βασική Ροή Εργασίας Διαχειριστή
 
 1. **Επικύρωση Ρυθμίσεων**:
    ```bash
-   zeroclaw status
+   octoclaw status
    ```
 2. **Διαγνωστικός Έλεγχος**:
    ```bash
-   zeroclaw doctor
-   zeroclaw channel doctor
+   octoclaw doctor
+   octoclaw channel doctor
    ```
 3. **Εκκίνηση Daemon**:
    ```bash
-   zeroclaw daemon
+   octoclaw daemon
    ```
 4. **Διαχείριση Υπηρεσίας**:
    ```bash
-   zeroclaw service install
-   zeroclaw service start
-   zeroclaw service status
+   octoclaw service install
+   octoclaw service start
+   octoclaw service status
    ```
 
 ## Δείκτες Κατάστασης και Υγείας
 
 | Δείκτης | Εντολή / Αρχείο | Αναμενόμενη Κατάσταση |
 |:---|:---|:---|
-| Εγκυρότητα Ρυθμίσεων | `zeroclaw doctor` | Επιτυχής έλεγχος χωρίς κρίσιμα σφάλματα. |
-| Συνδεσιμότητα Καναλιών | `zeroclaw channel doctor` | Όλα τα ενεργά κανάλια είναι online. |
-| Σύνοψη Runtime | `zeroclaw status` | Εμφάνιση σωστών παρόχων και μοντέλων. |
-| Daemon Heartbeat | `~/.zeroclaw/daemon_state.json` | Το αρχείο ενημερώνεται σε πραγματικό χρόνο. |
+| Εγκυρότητα Ρυθμίσεων | `octoclaw doctor` | Επιτυχής έλεγχος χωρίς κρίσιμα σφάλματα. |
+| Συνδεσιμότητα Καναλιών | `octoclaw channel doctor` | Όλα τα ενεργά κανάλια είναι online. |
+| Σύνοψη Runtime | `octoclaw status` | Εμφάνιση σωστών παρόχων και μοντέλων. |
+| Daemon Heartbeat | `~/.octoclaw/daemon_state.json` | Το αρχείο ενημερώνεται σε πραγματικό χρόνο. |
 
 ## Καταγραφές (Logs) και Διαγνωστικά
 
 - **macOS / Windows**:
-  - `~/.zeroclaw/logs/daemon.stdout.log`
-  - `~/.zeroclaw/logs/daemon.stderr.log`
+  - `~/.octoclaw/logs/daemon.stdout.log`
+  - `~/.octoclaw/logs/daemon.stderr.log`
 - **Linux (systemd)**:
   ```bash
-  journalctl --user -u zeroclaw.service -f
+  journalctl --user -u octoclaw.service -f
   ```
 
 ## Διαλογή Περιστατικών (Incident Triage)
@@ -69,22 +69,22 @@
 
 1. **Ανάλυση Κατάστασης**:
    ```bash
-   zeroclaw status
-   zeroclaw doctor
-   zeroclaw channel doctor
+   octoclaw status
+   octoclaw doctor
+   octoclaw channel doctor
    ```
 2. **Έλεγχος Υπηρεσίας**:
    ```bash
-   zeroclaw service status
+   octoclaw service status
    ```
 3. **Επανεκκίνηση**:
    Εάν η υπηρεσία δεν αποκρίνεται, πραγματοποιήστε καθαρή επανεκκίνηση:
    ```bash
-   zeroclaw service stop
-   zeroclaw service start
+   octoclaw service stop
+   octoclaw service start
    ```
 4. **Έλεγχος Διαπιστευτηρίων**:
-   Επαληθεύστε τα API keys και τις λίστες επιτρεπόμενων χρηστών στο `~/.zeroclaw/config.toml`.
+   Επαληθεύστε τα API keys και τις λίστες επιτρεπόμενων χρηστών στο `~/.octoclaw/config.toml`.
 5. **Έλεγχος Πύλης**:
    Επαληθεύστε τις ρυθμίσεις σύνδεσης στην ενότητα `[gateway]` και την τοπική συνδεσιμότητα.
 
@@ -92,7 +92,7 @@
 
 1. Δημιουργήστε αντίγραφο ασφαλείας του `config.toml`.
 2. Εφαρμόστε μία αλλαγή τη φορά.
-3. Εκτελέστε την εντολή `zeroclaw doctor` για επικύρωση.
+3. Εκτελέστε την εντολή `octoclaw doctor` για επικύρωση.
 4. Επανεκκινήστε την υπηρεσία.
 5. Επαληθεύστε τη λειτουργία μέσω των εντολών `status` και `channel doctor`.
 

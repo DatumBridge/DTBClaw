@@ -5,7 +5,7 @@
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use zeroclaw::providers::health::ProviderHealthTracker;
+use octoclaw::providers::health::ProviderHealthTracker;
 
 /// Simulates a provider with configurable failure pattern
 struct ProviderSimulator {

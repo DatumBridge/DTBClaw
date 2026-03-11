@@ -1,17 +1,17 @@
 {
-  "schema_version": "zeroclaw.release-artifact-contract.v1",
+  "schema_version": "octoclaw.release-artifact-contract.v1",
   "release_archive_patterns": [
-    "zeroclaw-x86_64-unknown-linux-gnu.tar.gz",
-    "zeroclaw-x86_64-unknown-linux-musl.tar.gz",
-    "zeroclaw-aarch64-unknown-linux-gnu.tar.gz",
-    "zeroclaw-aarch64-unknown-linux-musl.tar.gz",
-    "zeroclaw-armv7-unknown-linux-gnueabihf.tar.gz",
-    "zeroclaw-armv7-linux-androideabi.tar.gz",
-    "zeroclaw-aarch64-linux-android.tar.gz",
-    "zeroclaw-x86_64-unknown-freebsd.tar.gz",
-    "zeroclaw-x86_64-apple-darwin.tar.gz",
-    "zeroclaw-aarch64-apple-darwin.tar.gz",
-    "zeroclaw-x86_64-pc-windows-msvc.zip"
+    "octoclaw-x86_64-unknown-linux-gnu.tar.gz",
+    "octoclaw-x86_64-unknown-linux-musl.tar.gz",
+    "octoclaw-aarch64-unknown-linux-gnu.tar.gz",
+    "octoclaw-aarch64-unknown-linux-musl.tar.gz",
+    "octoclaw-armv7-unknown-linux-gnueabihf.tar.gz",
+    "octoclaw-armv7-linux-androideabi.tar.gz",
+    "octoclaw-aarch64-linux-android.tar.gz",
+    "octoclaw-x86_64-unknown-freebsd.tar.gz",
+    "octoclaw-x86_64-apple-darwin.tar.gz",
+    "octoclaw-aarch64-apple-darwin.tar.gz",
+    "octoclaw-x86_64-pc-windows-msvc.zip"
   ],
   "required_manifest_files": [
     "release-manifest.json",
@@ -19,8 +19,8 @@
     "SHA256SUMS"
   ],
   "required_sbom_files": [
-    "zeroclaw.cdx.json",
-    "zeroclaw.spdx.json"
+    "octoclaw.cdx.json",
+    "octoclaw.spdx.json"
   ],
   "required_notice_files": [
     "LICENSE-APACHE",

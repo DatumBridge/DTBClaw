@@ -79,7 +79,7 @@ export default function Dashboard() {
   if (!status || !cost) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent" />
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
       </div>
     );
   }
@@ -92,8 +92,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-blue-600/20 rounded-lg">
-              <Cpu className="h-5 w-5 text-blue-400" />
+            <div className="p-2 bg-indigo-600/20 rounded-lg">
+              <Cpu className="h-5 w-5 text-indigo-400" />
             </div>
             <span className="text-sm text-gray-400">Provider / Model</span>
           </div>
@@ -149,7 +149,7 @@ export default function Dashboard() {
         {/* Cost Widget */}
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <div className="flex items-center gap-2 mb-4">
-            <DollarSign className="h-5 w-5 text-blue-400" />
+            <DollarSign className="h-5 w-5 text-indigo-400" />
             <h2 className="text-base font-semibold text-white">Cost Overview</h2>
           </div>
           <div className="space-y-4">
@@ -185,7 +185,7 @@ export default function Dashboard() {
         {/* Active Channels */}
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <div className="flex items-center gap-2 mb-4">
-            <Radio className="h-5 w-5 text-blue-400" />
+            <Radio className="h-5 w-5 text-indigo-400" />
             <h2 className="text-base font-semibold text-white">Active Channels</h2>
           </div>
           <div className="space-y-2">
@@ -217,7 +217,7 @@ export default function Dashboard() {
         {/* Health Grid */}
         <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="h-5 w-5 text-blue-400" />
+            <Activity className="h-5 w-5 text-indigo-400" />
             <h2 className="text-base font-semibold text-white">Component Health</h2>
           </div>
           <div className="grid grid-cols-2 gap-3">

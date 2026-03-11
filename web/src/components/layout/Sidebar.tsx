@@ -61,7 +61,7 @@ function NavItem({
         [
           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
           isActive
-            ? 'bg-blue-600 text-white'
+            ? 'bg-indigo-600 text-white'
             : 'text-gray-300 hover:bg-gray-800 hover:text-white',
         ].join(' ')
       }
@@ -89,19 +89,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       />
       <aside
         className={[
-          'fixed top-0 left-0 z-40 h-screen w-60 bg-gray-900 flex flex-col border-r border-gray-800',
+          'fixed top-0 left-0 z-40 h-screen w-60 bg-[#16161d] flex flex-col border-r border-[#2d2d3a]',
           'transform transition-transform duration-200 ease-out',
           isOpen ? 'translate-x-0' : '-translate-x-full',
           'md:translate-x-0',
         ].join(' ')}
       >
-        <div className="flex items-center justify-between px-5 py-5 border-b border-gray-800">
+        <div className="flex items-center justify-between px-5 py-5 border-b border-[#2d2d3a]">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-              ZC
+            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+              DB
             </div>
             <span className="text-lg font-semibold text-white tracking-wide">
-              ZeroClaw
+              DatumBridge
             </span>
           </div>
           <button
@@ -135,7 +135,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {isAdmin && (
-          <div className="px-4 py-3 border-t border-gray-800">
+          <div className="px-4 py-3 border-t border-[#2d2d3a]">
             <button
               type="button"
               onClick={() => setAdmin(false)}

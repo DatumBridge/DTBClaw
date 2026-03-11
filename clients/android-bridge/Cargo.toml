@@ -1,17 +1,17 @@
 [package]
-name = "zeroclaw-android-bridge"
+name = "octoclaw-android-bridge"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "Android JNI bridge for ZeroClaw"
+description = "Android JNI bridge for OctoClaw"
 
 [lib]
 crate-type = ["cdylib"]
-name = "zeroclaw_android"
+name = "octoclaw_android"
 
 [dependencies]
-# Note: zeroclaw dep commented out until we integrate properly
-# zeroclaw = { path = "../.." }
+# Note: octoclaw dep commented out until we integrate properly
+# octoclaw = { path = "../.." }
 uniffi = { version = "0.27" }
 # Minimal tokio - only what we need
 tokio = { version = "1", default-features = false, features = ["rt", "rt-multi-thread", "sync"] }

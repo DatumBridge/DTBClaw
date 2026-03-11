@@ -3,7 +3,7 @@
 This folder contains a minimal plugin manifest and a WAT template matching the current host ABI.
 
 Files:
-- `echo.plugin.toml` - plugin declaration loaded by ZeroClaw
+- `echo.plugin.toml` - plugin declaration loaded by OctoClaw
 - `echo.wat` - sample WASM text source
 
 ## Build
@@ -27,8 +27,8 @@ load_paths = ["examples/plugins/echo"]
 - `memory`
 - `alloc(i32) -> i32`
 - `dealloc(i32, i32)`
-- `zeroclaw_tool_execute(i32, i32) -> i64`
-- `zeroclaw_provider_chat(i32, i32) -> i64`
+- `octoclaw_tool_execute(i32, i32) -> i64`
+- `octoclaw_provider_chat(i32, i32) -> i64`
 
 The `i64` return packs output pointer/length:
 - high 32 bits: pointer

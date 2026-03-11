@@ -623,7 +623,7 @@ mod tests {
         );
         headers.insert(
             header::SEC_WEBSOCKET_PROTOCOL,
-            HeaderValue::from_static("zeroclaw.v1, bearer.from-protocol"),
+            HeaderValue::from_static("octoclaw.v1, bearer.from-protocol"),
         );
 
         assert_eq!(
@@ -637,7 +637,7 @@ mod tests {
         let mut headers = HeaderMap::new();
         headers.insert(
             header::SEC_WEBSOCKET_PROTOCOL,
-            HeaderValue::from_static("zeroclaw.v1, bearer.protocol-token"),
+            HeaderValue::from_static("octoclaw.v1, bearer.protocol-token"),
         );
 
         assert_eq!(
@@ -655,7 +655,7 @@ mod tests {
         );
         headers.insert(
             header::SEC_WEBSOCKET_PROTOCOL,
-            HeaderValue::from_static("zeroclaw.v1, bearer."),
+            HeaderValue::from_static("octoclaw.v1, bearer."),
         );
 
         assert!(extract_ws_bearer_token(&headers, None).is_none());
@@ -675,7 +675,7 @@ mod tests {
         let mut headers = HeaderMap::new();
         headers.insert(
             header::SEC_WEBSOCKET_PROTOCOL,
-            HeaderValue::from_static("zeroclaw.v1, bearer.protocol-token"),
+            HeaderValue::from_static("octoclaw.v1, bearer.protocol-token"),
         );
 
         assert_eq!(

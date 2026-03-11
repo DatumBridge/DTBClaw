@@ -1,6 +1,6 @@
 # Référence des commandes (Français)
 
-Cette page est une localisation initiale Wave 1 pour retrouver rapidement les commandes CLI ZeroClaw.
+Cette page est une localisation initiale Wave 1 pour retrouver rapidement les commandes CLI OctoClaw.
 
 Source anglaise:
 
@@ -19,5 +19,5 @@ Source anglaise:
 
 ## Mise à jour récente
 
-- `zeroclaw gateway` prend en charge `--new-pairing` pour effacer les tokens appairés et générer un nouveau code d'appairage.
-- Le guide anglais inclut désormais les surfaces de migration OpenClaw: `zeroclaw onboard --migrate-openclaw`, `zeroclaw migrate openclaw` et l'outil agent `openclaw_migration` (traduction complète en cours).
+- `octoclaw gateway` prend en charge `--new-pairing` pour effacer les tokens appairés et générer un nouveau code d'appairage.
+- Le guide anglais inclut désormais les surfaces de migration OpenClaw: `octoclaw onboard --migrate-openclaw`, `octoclaw migrate openclaw` et l'outil agent `openclaw_migration` (traduction complète en cours).

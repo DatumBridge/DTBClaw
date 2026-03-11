@@ -24,8 +24,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--repo",
-        default=os.getenv("GITHUB_REPOSITORY", "zeroclaw-labs/zeroclaw"),
-        help="GitHub repository in owner/repo form (default: env GITHUB_REPOSITORY or zeroclaw-labs/zeroclaw).",
+        default=os.getenv("GITHUB_REPOSITORY", "octoclaw-labs/octoclaw"),
+        help="GitHub repository in owner/repo form (default: env GITHUB_REPOSITORY or octoclaw-labs/octoclaw).",
     )
     parser.add_argument(
         "--api-url",

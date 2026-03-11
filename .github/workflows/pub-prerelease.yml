@@ -205,9 +205,9 @@ jobs:
               run: |
                   set -euo pipefail
                   mkdir -p artifacts
-                  cp target/x86_64-unknown-linux-gnu/release-fast/zeroclaw artifacts/zeroclaw
-                  tar czf artifacts/zeroclaw-x86_64-unknown-linux-gnu.tar.gz -C artifacts zeroclaw
-                  rm artifacts/zeroclaw
+                  cp target/x86_64-unknown-linux-gnu/release-fast/octoclaw artifacts/octoclaw
+                  tar czf artifacts/octoclaw-x86_64-unknown-linux-gnu.tar.gz -C artifacts octoclaw
+                  rm artifacts/octoclaw
 
             - name: Generate manifest + checksums
               shell: bash

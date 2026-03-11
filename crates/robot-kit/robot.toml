@@ -1,5 +1,5 @@
-# ZeroClaw Robot Kit Configuration
-# Copy to ~/.zeroclaw/robot.toml
+# OctoClaw Robot Kit Configuration
+# Copy to ~/.octoclaw/robot.toml
 
 # =============================================================================
 # DRIVE SYSTEM

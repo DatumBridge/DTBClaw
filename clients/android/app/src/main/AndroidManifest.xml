@@ -19,13 +19,13 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
-        android:name=".ZeroClawApp"
+        android:name=".OctoClawApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ZeroClaw"
+        android:theme="@style/Theme.OctoClaw"
         tools:targetApi="34">
         
         <!-- Main Activity -->
@@ -33,7 +33,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ZeroClaw"
+            android:theme="@style/Theme.OctoClaw"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,13 +64,13 @@
 
         <!-- Background Service -->
         <service
-            android:name=".service.ZeroClawService"
+            android:name=".service.OctoClawService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <!-- Quick Settings Tile -->
         <service
-            android:name=".tile.ZeroClawTileService"
+            android:name=".tile.OctoClawTileService"
             android:exported="true"
             android:icon="@drawable/ic_notification"
             android:label="@string/app_name"
@@ -97,15 +97,15 @@
 
         <!-- Home Screen Widget -->
         <receiver
-            android:name=".widget.ZeroClawWidget"
+            android:name=".widget.OctoClawWidget"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <intent-filter>
-                <action android:name="ai.zeroclaw.widget.TOGGLE" />
-                <action android:name="ai.zeroclaw.widget.QUICK_MESSAGE" />
+                <action android:name="ai.octoclaw.widget.TOGGLE" />
+                <action android:name="ai.octoclaw.widget.QUICK_MESSAGE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

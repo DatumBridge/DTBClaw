@@ -2,7 +2,7 @@
   makeRustPlatform,
   rustToolchain,
   lib,
-  zeroclaw-web,
+  octoclaw-web,
   removeReferencesTo,
 }:
 let
@@ -12,7 +12,7 @@ let
   };
 in
 rustPlatform.buildRustPackage (finalAttrs: {
-  pname = "zeroclaw";
+  pname = "octoclaw";
   version = "0.1.7";
 
   src =
@@ -37,7 +37,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     };
   prePatch = ''
     mkdir web
-    ln -s ${zeroclaw-web} web/dist
+    ln -s ${octoclaw-web} web/dist
   '';
 
   cargoLock.lockFile = ./Cargo.lock;
@@ -51,7 +51,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   doCheck = false;
 
   # Some dependency causes Nix to detect the Rust toolchain to be a runtime dependency
-  # of zeroclaw. This manually removes any reference to the toolchain.
+  # of octoclaw. This manually removes any reference to the toolchain.
   postFixup = ''
     find "$out" -type f -exec remove-references-to -t ${rustToolchain} '{}' +
   '';

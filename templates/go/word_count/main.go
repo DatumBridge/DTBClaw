@@ -1,9 +1,9 @@
-// __SKILL_NAME__ — ZeroClaw Skill (Go / WASI)
+// __SKILL_NAME__ — OctoClaw Skill (Go / WASI)
 //
 // Counts words, lines, and characters in text.
 // Protocol: read JSON from stdin, write JSON result to stdout.
 // Build:    tinygo build -target=wasip1 -o tool.wasm .
-// Test:     zeroclaw skill test . --args '{"text":"hello world"}'
+// Test:     octoclaw skill test . --args '{"text":"hello world"}'
 
 package main
 
