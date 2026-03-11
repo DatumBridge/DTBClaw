@@ -130,6 +130,13 @@ export interface SSEEvent {
   [key: string]: any;
 }
 
+export interface Permissions {
+  workspace_only: boolean;
+  allowed_roots: string[];
+  forbidden_paths: string[];
+  allowed_commands: string[];
+}
+
 export interface WsMessage {
   type: 'message' | 'chunk' | 'tool_call' | 'tool_result' | 'done' | 'error' | 'history';
   content?: string;

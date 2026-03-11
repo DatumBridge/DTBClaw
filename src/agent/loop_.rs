@@ -3109,17 +3109,21 @@ pub async fn run(
 /// Process a single message through the full agent (with tools, peripherals, memory).
 /// Used by channels (Telegram, Discord, etc.) to enable hardware and tool use.
 pub async fn process_message(config: Config, message: &str) -> Result<String> {
-    process_message_with_session(config, message, None, None, None).await
+    process_message_with_session(config, message, None, None, None, None).await
 }
 
 /// Process a message with optional policy-driven constraints (excluded_tools, max_tool_iterations).
 /// Used by DatumBridge master-slave integration (Option A: policy in WebSocket message).
+///
+/// When `security_override` is `Some`, that policy is used for tool execution (so gateway
+/// hot-reloaded permissions take effect). When `None`, a fresh policy is built from `config`.
 pub async fn process_message_with_session(
     config: Config,
     message: &str,
     session_id: Option<&str>,
     excluded_tools: Option<&[String]>,
     max_tool_iterations_override: Option<usize>,
+    security_override: Option<Arc<SecurityPolicy>>,
 ) -> Result<String> {
     if let Err(error) = crate::plugins::runtime::initialize_from_config(&config.plugins) {
         tracing::warn!("plugin registry initialization skipped: {error}");
@@ -3131,10 +3135,12 @@ pub async fn process_message_with_session(
     );
     let runtime: Arc<dyn runtime::RuntimeAdapter> =
         Arc::from(runtime::create_runtime(&config.runtime)?);
-    let security = Arc::new(SecurityPolicy::from_config(
-        &config.autonomy,
-        &config.workspace_dir,
-    ));
+    let security = security_override.unwrap_or_else(|| {
+        Arc::new(SecurityPolicy::from_config(
+            &config.autonomy,
+            &config.workspace_dir,
+        ))
+    });
     let mem: Arc<dyn Memory> = Arc::from(memory::create_memory_with_storage(
         &config.memory,
         Some(&config.storage.provider.config),

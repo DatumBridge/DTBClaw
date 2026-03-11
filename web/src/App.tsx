@@ -12,8 +12,15 @@ import Config from './pages/Config';
 import Cost from './pages/Cost';
 import Logs from './pages/Logs';
 import Doctor from './pages/Doctor';
+import Permissions from './pages/Permissions';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { setLocale, type Locale } from './lib/i18n';
+import {
+  AdminContext,
+  consumeAdminFromURL,
+  getPersistedAdmin,
+  persistAdmin,
+} from './hooks/useAdminMode';
 
 // Locale context
 interface LocaleContextType {
@@ -110,25 +117,44 @@ function AppContent() {
     return <PairingDialog onPair={pair} />;
   }
 
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (consumeAdminFromURL()) {
+      persistAdmin(true);
+      return true;
+    }
+    return getPersistedAdmin();
+  });
+
+  const setAdmin = (value: boolean) => {
+    persistAdmin(value);
+    setIsAdmin(value);
+  };
+
+  const adminOrHome = (el: React.ReactNode) =>
+    isAdmin ? el : <Navigate to="/" replace />;
+
   return (
-    <LocaleContext.Provider value={{ locale, setAppLocale }}>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/agent" element={<AgentChat />} />
-          <Route path="/tools" element={<Tools />} />
-          <Route path="/cron" element={<Cron />} />
-          <Route path="/integrations" element={<Integrations />} />
-          <Route path="/memory" element={<Memory />} />
-          <Route path="/devices" element={<Devices />} />
-          <Route path="/config" element={<Config />} />
-          <Route path="/cost" element={<Cost />} />
-          <Route path="/logs" element={<Logs />} />
-          <Route path="/doctor" element={<Doctor />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </LocaleContext.Provider>
+    <AdminContext.Provider value={{ isAdmin, setAdmin }}>
+      <LocaleContext.Provider value={{ locale, setAppLocale }}>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/agent" element={<AgentChat />} />
+            <Route path="/tools" element={adminOrHome(<Tools />)} />
+            <Route path="/cron" element={adminOrHome(<Cron />)} />
+            <Route path="/integrations" element={adminOrHome(<Integrations />)} />
+            <Route path="/memory" element={adminOrHome(<Memory />)} />
+            <Route path="/devices" element={adminOrHome(<Devices />)} />
+            <Route path="/config" element={adminOrHome(<Config />)} />
+            <Route path="/cost" element={adminOrHome(<Cost />)} />
+            <Route path="/logs" element={adminOrHome(<Logs />)} />
+            <Route path="/doctor" element={adminOrHome(<Doctor />)} />
+            <Route path="/permissions" element={adminOrHome(<Permissions />)} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </LocaleContext.Provider>
+    </AdminContext.Provider>
   );
 }
 

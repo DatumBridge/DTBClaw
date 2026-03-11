@@ -9,6 +9,7 @@ use axum::{
     response::{IntoResponse, Json},
 };
 use serde::Deserialize;
+use std::path::PathBuf;
 
 const MASKED_SECRET: &str = "***MASKED***";
 
@@ -569,6 +570,103 @@ pub async fn handle_api_pairing_device_revoke(
     }
 
     Json(serde_json::json!({"status": "ok", "revoked": true, "id": id})).into_response()
+}
+
+/// GET /api/permissions — read autonomy permissions (live values)
+pub async fn handle_api_permissions_get(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if let Err(e) = require_auth(&state, &headers) {
+        return e.into_response();
+    }
+
+    let (workspace_only, allowed_commands, forbidden_paths, allowed_roots) =
+        state.security.effective_permissions();
+
+    Json(serde_json::json!({
+        "workspace_only": workspace_only,
+        "allowed_roots": allowed_roots,
+        "forbidden_paths": forbidden_paths,
+        "allowed_commands": allowed_commands,
+    }))
+    .into_response()
+}
+
+#[derive(Deserialize)]
+pub struct PermissionsBody {
+    pub workspace_only: Option<bool>,
+    pub allowed_roots: Option<Vec<String>>,
+    pub forbidden_paths: Option<Vec<String>>,
+    pub allowed_commands: Option<Vec<String>>,
+}
+
+/// PUT /api/permissions — update autonomy permissions (hot-reloaded)
+pub async fn handle_api_permissions_put(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Json(body): Json<PermissionsBody>,
+) -> impl IntoResponse {
+    if let Err(e) = require_auth(&state, &headers) {
+        return e.into_response();
+    }
+
+    let mut config = state.config.lock().clone();
+
+    if let Some(v) = body.workspace_only {
+        config.autonomy.workspace_only = v;
+    }
+    if let Some(v) = body.allowed_roots {
+        config.autonomy.allowed_roots = v;
+    }
+    if let Some(v) = body.forbidden_paths {
+        config.autonomy.forbidden_paths = v;
+    }
+    if let Some(v) = body.allowed_commands {
+        config.autonomy.allowed_commands = v;
+    }
+
+    if let Err(e) = config.validate() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": format!("Invalid config: {e}")})),
+        )
+            .into_response();
+    }
+
+    if let Err(e) = config.save().await {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": format!("Failed to save: {e}")})),
+        )
+            .into_response();
+    }
+
+    let workspace_dir = config.workspace_dir.clone();
+    let allowed_roots = config
+        .autonomy
+        .allowed_roots
+        .iter()
+        .map(|root| {
+            let expanded = crate::security::policy::expand_user_path(root);
+            if expanded.is_absolute() {
+                expanded
+            } else {
+                PathBuf::from(&workspace_dir).join(expanded)
+            }
+        })
+        .collect();
+
+    state.security.update_permissions(
+        config.autonomy.workspace_only,
+        config.autonomy.allowed_commands.clone(),
+        config.autonomy.forbidden_paths.clone(),
+        allowed_roots,
+    );
+
+    *state.config.lock() = config;
+
+    Json(serde_json::json!({"status": "ok"})).into_response()
 }
 
 // ── Helpers ─────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ import type {
   CostSummary,
   CliTool,
   HealthSnapshot,
+  Permissions,
 } from '../types/api';
 import { clearToken, getToken, setToken } from './auth';
 
@@ -282,4 +283,19 @@ export function getCliTools(): Promise<CliTool[]> {
   return apiFetch<CliTool[] | { cli_tools: CliTool[] }>('/api/cli-tools').then((data) =>
     unwrapField(data, 'cli_tools'),
   );
+}
+
+// ---------------------------------------------------------------------------
+// Permissions
+// ---------------------------------------------------------------------------
+
+export function getPermissions(): Promise<Permissions> {
+  return apiFetch<Permissions>('/api/permissions');
+}
+
+export function putPermissions(body: Partial<Permissions>): Promise<void> {
+  return apiFetch<unknown>('/api/permissions', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  }).then(() => undefined);
 }

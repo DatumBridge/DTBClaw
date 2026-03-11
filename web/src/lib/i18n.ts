@@ -21,6 +21,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.cost': 'Cost Tracker',
     'nav.logs': 'Logs',
     'nav.doctor': 'Doctor',
+    'nav.permissions': 'Permissions',
+    'nav.section_admin': 'Admin',
+    'nav.admin_mode': 'Admin Mode',
 
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -148,6 +151,24 @@ const translations: Record<Locale, Record<string, string>> = {
     'doctor.empty': 'No diagnostics have been run yet.',
     'doctor.summary': 'Diagnostic Summary',
 
+    // Permissions
+    'permissions.title': 'Permissions',
+    'permissions.workspace_only': 'Workspace Only',
+    'permissions.workspace_only_desc': 'When enabled, ZeroClaw can only access files within the current workspace directory.',
+    'permissions.allowed_roots': 'Allowed Folders',
+    'permissions.allowed_roots_desc': 'Additional directories ZeroClaw is permitted to access outside the workspace.',
+    'permissions.forbidden_paths': 'Blocked Paths',
+    'permissions.forbidden_paths_desc': 'Directories and files that ZeroClaw is never allowed to access.',
+    'permissions.allowed_commands': 'Allowed Commands',
+    'permissions.allowed_commands_desc': 'Shell commands that ZeroClaw is permitted to execute.',
+    'permissions.add': 'Add',
+    'permissions.placeholder_path': '/path/to/folder',
+    'permissions.placeholder_command': 'command',
+    'permissions.save': 'Save Changes',
+    'permissions.saved': 'Permissions saved successfully.',
+    'permissions.error': 'Failed to save permissions.',
+    'permissions.remove': 'Remove',
+
     // Auth / Pairing
     'auth.pair': 'Pair Device',
     'auth.pairing_code': 'Pairing Code',
@@ -205,6 +226,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.cost': 'Maliyet Takibi',
     'nav.logs': 'Kayitlar',
     'nav.doctor': 'Doktor',
+    'nav.permissions': 'Izinler',
+    'nav.section_admin': 'Yonetici',
+    'nav.admin_mode': 'Yonetici Modu',
 
     // Dashboard
     'dashboard.title': 'Kontrol Paneli',
@@ -332,6 +356,24 @@ const translations: Record<Locale, Record<string, string>> = {
     'doctor.empty': 'Henuz teshis calistirilmadi.',
     'doctor.summary': 'Teshis Ozeti',
 
+    // Permissions
+    'permissions.title': 'Izinler',
+    'permissions.workspace_only': 'Yalnizca Calisma Alani',
+    'permissions.workspace_only_desc': 'Etkinlestirildiginde, ZeroClaw yalnizca mevcut calisma alani dizinindeki dosyalara erisebilir.',
+    'permissions.allowed_roots': 'Izin Verilen Klasorler',
+    'permissions.allowed_roots_desc': 'ZeroClaw\'un calisma alani disinda erisebilecegi ek dizinler.',
+    'permissions.forbidden_paths': 'Engellenen Yollar',
+    'permissions.forbidden_paths_desc': 'ZeroClaw\'un asla erisemeyecegi dizin ve dosyalar.',
+    'permissions.allowed_commands': 'Izin Verilen Komutlar',
+    'permissions.allowed_commands_desc': 'ZeroClaw\'un calistirmasina izin verilen kabuk komutlari.',
+    'permissions.add': 'Ekle',
+    'permissions.placeholder_path': '/klasor/yolu',
+    'permissions.placeholder_command': 'komut',
+    'permissions.save': 'Degisiklikleri Kaydet',
+    'permissions.saved': 'Izinler basariyla kaydedildi.',
+    'permissions.error': 'Izinler kaydedilemedi.',
+    'permissions.remove': 'Kaldir',
+
     // Auth / Pairing
     'auth.pair': 'Cihaz Esle',
     'auth.pairing_code': 'Eslestirme Kodu',
@@ -389,6 +431,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.cost': '成本追踪',
     'nav.logs': '日志',
     'nav.doctor': '诊断',
+    'nav.permissions': '权限管理',
+    'nav.section_admin': '管理',
+    'nav.admin_mode': '管理模式',
 
     // Dashboard
     'dashboard.title': '仪表盘',
@@ -515,6 +560,24 @@ const translations: Record<Locale, Record<string, string>> = {
     'doctor.message': '消息',
     'doctor.empty': '尚未运行诊断。',
     'doctor.summary': '诊断摘要',
+
+    // Permissions
+    'permissions.title': '权限管理',
+    'permissions.workspace_only': '仅工作区',
+    'permissions.workspace_only_desc': '启用后，ZeroClaw 只能访问当前工作区目录中的文件。',
+    'permissions.allowed_roots': '允许的文件夹',
+    'permissions.allowed_roots_desc': 'ZeroClaw 可以在工作区外访问的额外目录。',
+    'permissions.forbidden_paths': '禁止的路径',
+    'permissions.forbidden_paths_desc': 'ZeroClaw 永远不能访问的目录和文件。',
+    'permissions.allowed_commands': '允许的命令',
+    'permissions.allowed_commands_desc': 'ZeroClaw 可以执行的 Shell 命令。',
+    'permissions.add': '添加',
+    'permissions.placeholder_path': '/文件夹/路径',
+    'permissions.placeholder_command': '命令',
+    'permissions.save': '保存更改',
+    'permissions.saved': '权限保存成功。',
+    'permissions.error': '权限保存失败。',
+    'permissions.remove': '移除',
 
     // Auth / Pairing
     'auth.pair': '设备配对',

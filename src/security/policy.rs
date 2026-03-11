@@ -1,4 +1,4 @@
-use parking_lot::Mutex;
+use parking_lot::{Mutex, RwLock};
 use reqwest::Url;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -111,8 +111,18 @@ impl Clone for ActionTracker {
     }
 }
 
-/// Security policy enforced on all tool executions
+/// Hot-swappable permission fields that can be updated at runtime without
+/// restarting the gateway.
 #[derive(Debug, Clone)]
+struct PermissionsOverride {
+    workspace_only: bool,
+    allowed_commands: Vec<String>,
+    forbidden_paths: Vec<String>,
+    allowed_roots: Vec<PathBuf>,
+}
+
+/// Security policy enforced on all tool executions
+#[derive(Debug)]
 pub struct SecurityPolicy {
     pub autonomy: AutonomyLevel,
     pub workspace_dir: PathBuf,
@@ -129,6 +139,31 @@ pub struct SecurityPolicy {
     pub allow_sensitive_file_reads: bool,
     pub allow_sensitive_file_writes: bool,
     pub tracker: ActionTracker,
+    live_permissions: RwLock<Option<PermissionsOverride>>,
+}
+
+impl Clone for SecurityPolicy {
+    fn clone(&self) -> Self {
+        let live = self.live_permissions.read();
+        Self {
+            autonomy: self.autonomy,
+            workspace_dir: self.workspace_dir.clone(),
+            workspace_only: self.workspace_only,
+            allowed_commands: self.allowed_commands.clone(),
+            command_context_rules: self.command_context_rules.clone(),
+            forbidden_paths: self.forbidden_paths.clone(),
+            allowed_roots: self.allowed_roots.clone(),
+            max_actions_per_hour: self.max_actions_per_hour,
+            max_cost_per_day_cents: self.max_cost_per_day_cents,
+            require_approval_for_medium_risk: self.require_approval_for_medium_risk,
+            block_high_risk_commands: self.block_high_risk_commands,
+            shell_env_passthrough: self.shell_env_passthrough.clone(),
+            allow_sensitive_file_reads: self.allow_sensitive_file_reads,
+            allow_sensitive_file_writes: self.allow_sensitive_file_writes,
+            tracker: self.tracker.clone(),
+            live_permissions: RwLock::new(live.clone()),
+        }
+    }
 }
 
 impl Default for SecurityPolicy {
@@ -189,6 +224,7 @@ impl Default for SecurityPolicy {
             allow_sensitive_file_reads: false,
             allow_sensitive_file_writes: false,
             tracker: ActionTracker::new(),
+            live_permissions: RwLock::new(None),
         }
     }
 }
@@ -197,7 +233,7 @@ fn home_dir() -> Option<PathBuf> {
     std::env::var_os("HOME").map(PathBuf::from)
 }
 
-fn expand_user_path(path: &str) -> PathBuf {
+pub fn expand_user_path(path: &str) -> PathBuf {
     if path == "~" {
         if let Some(home) = home_dir() {
             return home;
@@ -915,9 +951,13 @@ impl SecurityPolicy {
                 return Err(format!("context rule denied command segment `{base_cmd}`"));
             }
 
+            let live = self.live_permissions.read();
+            let allowed_commands = live
+                .as_ref()
+                .map_or(&self.allowed_commands, |o| &o.allowed_commands);
+
             if context_outcome.decision != SegmentRuleDecision::Allow
-                && !self
-                    .allowed_commands
+                && !allowed_commands
                     .iter()
                     .any(|allowed| is_allowlist_entry_match(allowed, executable, base_cmd))
             {
@@ -1329,13 +1369,30 @@ impl SecurityPolicy {
         // Expand "~" for consistent matching with forbidden paths and allowlists.
         let expanded_path = expand_user_path(path);
 
-        // Block absolute paths when workspace_only is set
-        if self.workspace_only && expanded_path.is_absolute() {
+        let live = self.live_permissions.read();
+        let workspace_only = live.as_ref().map_or(self.workspace_only, |o| o.workspace_only);
+        let forbidden_paths = live
+            .as_ref()
+            .map_or(&self.forbidden_paths, |o| &o.forbidden_paths);
+        let allowed_roots = live
+            .as_ref()
+            .map_or(&self.allowed_roots, |o| &o.allowed_roots);
+
+        // Block absolute paths when workspace_only is set, unless under an allowed root
+        if workspace_only && expanded_path.is_absolute() {
+            let under_allowed = allowed_roots.iter().any(|root| {
+                let canonical = root.canonicalize().unwrap_or_else(|_| root.clone());
+                expanded_path.starts_with(&canonical)
+            });
+            if under_allowed {
+                // Allowed roots take precedence (same as is_resolved_path_allowed)
+                return true;
+            }
             return false;
         }
 
         // Block forbidden paths using path-component-aware matching
-        for forbidden in &self.forbidden_paths {
+        for forbidden in forbidden_paths {
             let forbidden_path = expand_user_path(forbidden);
             if expanded_path.starts_with(forbidden_path) {
                 return false;
@@ -1358,10 +1415,19 @@ impl SecurityPolicy {
             return true;
         }
 
+        let live = self.live_permissions.read();
+        let allowed_roots = live
+            .as_ref()
+            .map_or(&self.allowed_roots, |o| &o.allowed_roots);
+        let forbidden_paths = live
+            .as_ref()
+            .map_or(&self.forbidden_paths, |o| &o.forbidden_paths);
+        let workspace_only = live.as_ref().map_or(self.workspace_only, |o| o.workspace_only);
+
         // Check extra allowed roots (e.g. shared skills directories) before
         // forbidden checks so explicit allowlists can coexist with broad
         // default forbidden roots such as `/home` and `/tmp`.
-        for root in &self.allowed_roots {
+        for root in allowed_roots {
             let canonical = root.canonicalize().unwrap_or_else(|_| root.clone());
             if resolved.starts_with(&canonical) {
                 return true;
@@ -1370,7 +1436,7 @@ impl SecurityPolicy {
 
         // For paths outside workspace/allowlist, block forbidden roots to
         // prevent symlink escapes and sensitive directory access.
-        for forbidden in &self.forbidden_paths {
+        for forbidden in forbidden_paths {
             let forbidden_path = expand_user_path(forbidden);
             if resolved.starts_with(&forbidden_path) {
                 return false;
@@ -1379,7 +1445,7 @@ impl SecurityPolicy {
 
         // When workspace_only is disabled the user explicitly opted out of
         // workspace confinement after forbidden-path checks are applied.
-        if !self.workspace_only {
+        if !workspace_only {
             return true;
         }
 
@@ -1387,7 +1453,11 @@ impl SecurityPolicy {
     }
 
     pub fn resolved_path_violation_message(&self, resolved: &Path) -> String {
-        let guidance = if self.allowed_roots.is_empty() {
+        let live = self.live_permissions.read();
+        let allowed_roots = live
+            .as_ref()
+            .map_or(&self.allowed_roots, |o| &o.allowed_roots);
+        let guidance = if allowed_roots.is_empty() {
             "Add the directory to [autonomy].allowed_roots (for example: allowed_roots = [\"/absolute/path\"]), or move the file into the workspace."
         } else {
             "Add a matching parent directory to [autonomy].allowed_roots, or move the file into the workspace."
@@ -1463,16 +1533,23 @@ impl SecurityPolicy {
         };
 
         let workspace = self.workspace_dir.display();
-        let ws_only = self.workspace_only;
+
+        let live = self.live_permissions.read();
+        let ws_only = live.as_ref().map_or(self.workspace_only, |o| o.workspace_only);
+        let forbidden_paths = live
+            .as_ref()
+            .map_or(&self.forbidden_paths, |o| &o.forbidden_paths);
+        let allowed_commands = live
+            .as_ref()
+            .map_or(&self.allowed_commands, |o| &o.allowed_commands);
 
         let forbidden_preview: String = {
-            let shown: Vec<&str> = self
-                .forbidden_paths
+            let shown: Vec<&str> = forbidden_paths
                 .iter()
                 .take(8)
                 .map(String::as_str)
                 .collect();
-            let remaining = self.forbidden_paths.len().saturating_sub(8);
+            let remaining = forbidden_paths.len().saturating_sub(8);
             if remaining > 0 {
                 format!("{} (+ {} more)", shown.join(", "), remaining)
             } else {
@@ -1481,13 +1558,12 @@ impl SecurityPolicy {
         };
 
         let commands_preview: String = {
-            let shown: Vec<&str> = self
-                .allowed_commands
+            let shown: Vec<&str> = allowed_commands
                 .iter()
                 .take(8)
                 .map(String::as_str)
                 .collect();
-            let remaining = self.allowed_commands.len().saturating_sub(8);
+            let remaining = allowed_commands.len().saturating_sub(8);
             if remaining > 0 {
                 format!("{} (+ {} more rejected)", shown.join(", "), remaining)
             } else if shown.is_empty() {
@@ -1568,6 +1644,44 @@ impl SecurityPolicy {
             allow_sensitive_file_reads: autonomy_config.allow_sensitive_file_reads,
             allow_sensitive_file_writes: autonomy_config.allow_sensitive_file_writes,
             tracker: ActionTracker::new(),
+            live_permissions: RwLock::new(None),
+        }
+    }
+
+    /// Hot-swap the permission fields at runtime. The new values take effect
+    /// immediately for all tools sharing this `Arc<SecurityPolicy>`.
+    pub fn update_permissions(
+        &self,
+        workspace_only: bool,
+        allowed_commands: Vec<String>,
+        forbidden_paths: Vec<String>,
+        allowed_roots: Vec<PathBuf>,
+    ) {
+        *self.live_permissions.write() = Some(PermissionsOverride {
+            workspace_only,
+            allowed_commands,
+            forbidden_paths,
+            allowed_roots,
+        });
+    }
+
+    /// Read the currently effective permission values, preferring the live
+    /// override when present.
+    pub fn effective_permissions(&self) -> (bool, Vec<String>, Vec<String>, Vec<PathBuf>) {
+        let live = self.live_permissions.read();
+        match live.as_ref() {
+            Some(o) => (
+                o.workspace_only,
+                o.allowed_commands.clone(),
+                o.forbidden_paths.clone(),
+                o.allowed_roots.clone(),
+            ),
+            None => (
+                self.workspace_only,
+                self.allowed_commands.clone(),
+                self.forbidden_paths.clone(),
+                self.allowed_roots.clone(),
+            ),
         }
     }
 }
@@ -1987,6 +2101,30 @@ mod tests {
             ..SecurityPolicy::default()
         };
         assert!(p.is_path_allowed("/tmp/file.txt"));
+    }
+
+    #[test]
+    fn absolute_paths_under_allowed_root_allowed_when_workspace_only() {
+        let tmp = std::env::temp_dir();
+        let allowed = tmp.join("zeroclaw_allowed_root_test");
+        let _ = std::fs::create_dir_all(&allowed);
+        let p = SecurityPolicy {
+            workspace_only: true,
+            allowed_roots: vec![allowed.clone()],
+            ..SecurityPolicy::default()
+        };
+        assert!(
+            p.is_path_allowed(allowed.join("file.txt").to_string_lossy().as_ref()),
+            "path under allowed root must be allowed"
+        );
+        assert!(
+            p.is_path_allowed(allowed.join("subdir").join("nested").to_string_lossy().as_ref()),
+            "nested path under allowed root must be allowed"
+        );
+        assert!(
+            !p.is_path_allowed("/etc/passwd"),
+            "path outside allowed root must still be blocked"
+        );
     }
 
     #[test]
