@@ -39,24 +39,24 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   };
 
   return (
-    <header className="h-14 bg-[#16161d] border-b border-[#2d2d3a] flex items-center justify-between px-4 md:px-6">
+    <header className="flex h-14 items-center justify-between border-b border-slate-700/80 bg-[#1e293b] px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onToggleSidebar}
           aria-label="Open navigation"
-          className="md:hidden p-1.5 rounded-md text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+          className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-700/80 hover:text-slate-100 md:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-semibold text-white">{pageTitle}</h1>
+        <h1 className="text-lg font-semibold tracking-tight text-slate-50">{pageTitle}</h1>
       </div>
 
-      <div className="flex items-center gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-3">
         <button
           type="button"
           onClick={toggleLanguage}
-          className="px-3 py-1 rounded-md text-sm font-medium border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+          className="rounded-lg border border-slate-600 bg-slate-800/50 px-3 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-slate-100"
         >
           {locale === 'en' ? 'EN' : locale === 'tr' ? 'TR' : '中文'}
         </button>
@@ -64,7 +64,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
         <button
           type="button"
           onClick={logout}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-slate-400 transition-colors hover:bg-slate-700/80 hover:text-slate-100"
         >
           <LogOut className="h-4 w-4" />
           <span className="hidden sm:inline">{t('auth.logout')}</span>

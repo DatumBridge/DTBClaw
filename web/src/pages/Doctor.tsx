@@ -13,33 +13,33 @@ import { runDoctor } from '@/lib/api';
 function severityIcon(severity: DiagResult['severity']) {
   switch (severity) {
     case 'ok':
-      return <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />;
+      return <CheckCircle className="h-4 w-4 flex-shrink-0 text-emerald-400" />;
     case 'warn':
-      return <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0" />;
+      return <AlertTriangle className="h-4 w-4 flex-shrink-0 text-amber-400" />;
     case 'error':
-      return <XCircle className="h-4 w-4 text-red-400 flex-shrink-0" />;
+      return <XCircle className="h-4 w-4 flex-shrink-0 text-rose-400" />;
   }
 }
 
 function severityBorder(severity: DiagResult['severity']): string {
   switch (severity) {
     case 'ok':
-      return 'border-green-700/40';
+      return 'border-emerald-600/40';
     case 'warn':
-      return 'border-yellow-700/40';
+      return 'border-amber-600/40';
     case 'error':
-      return 'border-red-700/40';
+      return 'border-rose-600/40';
   }
 }
 
 function severityBg(severity: DiagResult['severity']): string {
   switch (severity) {
     case 'ok':
-      return 'bg-green-900/10';
+      return 'bg-emerald-500/10';
     case 'warn':
-      return 'bg-yellow-900/10';
+      return 'bg-amber-500/10';
     case 'error':
-      return 'bg-red-900/10';
+      return 'bg-rose-500/10';
   }
 }
 
@@ -81,13 +81,13 @@ export default function Doctor() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Stethoscope className="h-5 w-5 text-blue-400" />
+          <Stethoscope className="h-5 w-5 text-teal-400" />
           <h2 className="text-base font-semibold text-white">Diagnostics</h2>
         </div>
         <button
           onClick={handleRun}
           disabled={loading}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 btn-primary text-sm font-medium px-4 py-2 rounded-lg disabled:opacity-50"
         >
           {loading ? (
             <>
@@ -105,7 +105,7 @@ export default function Doctor() {
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-900/30 border border-red-700 p-4 text-red-300">
+        <div className="rounded-lg bg-rose-500/15 border border-rose-500/40 p-4 text-rose-300">
           {error}
         </div>
       )}
@@ -113,9 +113,9 @@ export default function Doctor() {
       {/* Loading spinner */}
       {loading && (
         <div className="flex flex-col items-center justify-center py-16">
-          <Loader2 className="h-10 w-10 text-blue-500 animate-spin mb-4" />
-          <p className="text-gray-400">Running diagnostics...</p>
-          <p className="text-sm text-gray-500 mt-1">
+          <Loader2 className="h-10 w-10 text-teal-500 animate-spin mb-4" />
+          <p className="text-slate-400">Running diagnostics...</p>
+          <p className="text-sm text-slate-500 mt-1">
             This may take a few seconds.
           </p>
         </div>
@@ -125,29 +125,29 @@ export default function Doctor() {
       {results && !loading && (
         <>
           {/* Summary Bar */}
-          <div className="flex items-center gap-4 bg-gray-900 rounded-xl border border-gray-800 p-4">
+          <div className="flex items-center gap-4 bg-slate-800/50 rounded-xl border border-slate-700/80 p-4">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-400" />
+              <CheckCircle className="h-5 w-5 text-emerald-400" />
               <span className="text-sm text-white font-medium">
-                {okCount} <span className="text-gray-400 font-normal">ok</span>
+                {okCount} <span className="text-slate-400 font-normal">ok</span>
               </span>
             </div>
-            <div className="w-px h-5 bg-gray-700" />
+            <div className="w-px h-5 bg-slate-600" />
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-400" />
+              <AlertTriangle className="h-5 w-5 text-amber-400" />
               <span className="text-sm text-white font-medium">
                 {warnCount}{' '}
-                <span className="text-gray-400 font-normal">
+                <span className="text-slate-400 font-normal">
                   warning{warnCount !== 1 ? 's' : ''}
                 </span>
               </span>
             </div>
-            <div className="w-px h-5 bg-gray-700" />
+            <div className="w-px h-5 bg-slate-600" />
             <div className="flex items-center gap-2">
-              <XCircle className="h-5 w-5 text-red-400" />
+              <XCircle className="h-5 w-5 text-rose-400" />
               <span className="text-sm text-white font-medium">
                 {errorCount}{' '}
-                <span className="text-gray-400 font-normal">
+                <span className="text-slate-400 font-normal">
                   error{errorCount !== 1 ? 's' : ''}
                 </span>
               </span>
@@ -156,15 +156,15 @@ export default function Doctor() {
             {/* Overall indicator */}
             <div className="ml-auto">
               {errorCount > 0 ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-900/40 text-red-400 border border-red-700/50">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/20 text-rose-400 border border-rose-500/40">
                   Issues Found
                 </span>
               ) : warnCount > 0 ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-yellow-900/40 text-yellow-400 border border-yellow-700/50">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/40">
                   Warnings
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-900/40 text-green-400 border border-green-700/50">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   All Clear
                 </span>
               )}
@@ -176,7 +176,7 @@ export default function Doctor() {
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([category, items]) => (
               <div key={category}>
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 capitalize">
+                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 capitalize">
                   {category}
                 </h3>
                 <div className="space-y-2">
@@ -190,7 +190,7 @@ export default function Doctor() {
                       {severityIcon(result.severity)}
                       <div className="min-w-0">
                         <p className="text-sm text-white">{result.message}</p>
-                        <p className="text-xs text-gray-500 mt-0.5 capitalize">
+                        <p className="text-xs text-slate-500 mt-0.5 capitalize">
                           {result.severity}
                         </p>
                       </div>
@@ -204,8 +204,8 @@ export default function Doctor() {
 
       {/* Empty state */}
       {!results && !loading && !error && (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-          <Stethoscope className="h-12 w-12 text-gray-600 mb-4" />
+        <div className="flex flex-col items-center justify-center py-16 text-slate-500">
+          <Stethoscope className="h-12 w-12 text-slate-600 mb-4" />
           <p className="text-lg font-medium">System Diagnostics</p>
           <p className="text-sm mt-1">
             Click "Run Diagnostics" to check your DatumBridge installation.

@@ -28,13 +28,13 @@ function healthColor(status: string): string {
   switch (status.toLowerCase()) {
     case 'ok':
     case 'healthy':
-      return 'bg-green-500';
+      return 'bg-emerald-500';
     case 'warn':
     case 'warning':
     case 'degraded':
-      return 'bg-yellow-500';
+      return 'bg-amber-500';
     default:
-      return 'bg-red-500';
+      return 'bg-rose-500';
   }
 }
 
@@ -42,13 +42,13 @@ function healthBorder(status: string): string {
   switch (status.toLowerCase()) {
     case 'ok':
     case 'healthy':
-      return 'border-green-500/30';
+      return 'border-emerald-500/30';
     case 'warn':
     case 'warning':
     case 'degraded':
-      return 'border-yellow-500/30';
+      return 'border-amber-500/30';
     default:
-      return 'border-red-500/30';
+      return 'border-rose-500/30';
   }
 }
 
@@ -69,7 +69,7 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="rounded-lg bg-red-900/30 border border-red-700 p-4 text-red-300">
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-300">
           Failed to load dashboard: {error}
         </div>
       </div>
@@ -78,8 +78,8 @@ export default function Dashboard() {
 
   if (!status || !cost) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent" />
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
       </div>
     );
   }
@@ -87,83 +87,81 @@ export default function Dashboard() {
   const maxCost = Math.max(cost.session_cost_usd, cost.daily_cost_usd, cost.monthly_cost_usd, 0.001);
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Status Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-indigo-600/20 rounded-lg">
-              <Cpu className="h-5 w-5 text-indigo-400" />
+    <div className="space-y-6 p-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="rounded-lg bg-teal-500/15 p-2">
+              <Cpu className="h-5 w-5 text-teal-400" />
             </div>
-            <span className="text-sm text-gray-400">Provider / Model</span>
+            <span className="text-sm text-slate-400">Provider / Model</span>
           </div>
-          <p className="text-lg font-semibold text-white truncate">
+          <p className="truncate text-lg font-semibold text-slate-50">
             {status.provider ?? 'Unknown'}
           </p>
-          <p className="text-sm text-gray-400 truncate">{status.model}</p>
+          <p className="truncate text-sm text-slate-400">{status.model}</p>
         </div>
 
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-green-600/20 rounded-lg">
-              <Clock className="h-5 w-5 text-green-400" />
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="rounded-lg bg-emerald-500/15 p-2">
+              <Clock className="h-5 w-5 text-emerald-400" />
             </div>
-            <span className="text-sm text-gray-400">Uptime</span>
+            <span className="text-sm text-slate-400">Uptime</span>
           </div>
-          <p className="text-lg font-semibold text-white">
+          <p className="text-lg font-semibold text-slate-50">
             {formatUptime(status.uptime_seconds)}
           </p>
-          <p className="text-sm text-gray-400">Since last restart</p>
+          <p className="text-sm text-slate-400">Since last restart</p>
         </div>
 
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-purple-600/20 rounded-lg">
-              <Globe className="h-5 w-5 text-purple-400" />
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="rounded-lg bg-sky-500/15 p-2">
+              <Globe className="h-5 w-5 text-sky-400" />
             </div>
-            <span className="text-sm text-gray-400">Gateway Port</span>
+            <span className="text-sm text-slate-400">Gateway Port</span>
           </div>
-          <p className="text-lg font-semibold text-white">
+          <p className="text-lg font-semibold text-slate-50">
             :{status.gateway_port}
           </p>
-          <p className="text-sm text-gray-400">Locale: {status.locale}</p>
+          <p className="text-sm text-slate-400">Locale: {status.locale}</p>
         </div>
 
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-orange-600/20 rounded-lg">
-              <Database className="h-5 w-5 text-orange-400" />
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="rounded-lg bg-amber-500/15 p-2">
+              <Database className="h-5 w-5 text-amber-400" />
             </div>
-            <span className="text-sm text-gray-400">Memory Backend</span>
+            <span className="text-sm text-slate-400">Memory Backend</span>
           </div>
-          <p className="text-lg font-semibold text-white capitalize">
+          <p className="capitalize text-lg font-semibold text-slate-50">
             {status.memory_backend}
           </p>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-slate-400">
             Paired: {status.paired ? 'Yes' : 'No'}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Cost Widget */}
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-2 mb-4">
-            <DollarSign className="h-5 w-5 text-indigo-400" />
-            <h2 className="text-base font-semibold text-white">Cost Overview</h2>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-teal-400" />
+            <h2 className="text-base font-semibold text-slate-50">Cost Overview</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'Session', value: cost.session_cost_usd, color: 'bg-blue-500' },
-              { label: 'Daily', value: cost.daily_cost_usd, color: 'bg-green-500' },
-              { label: 'Monthly', value: cost.monthly_cost_usd, color: 'bg-purple-500' },
+              { label: 'Session', value: cost.session_cost_usd, color: 'bg-teal-500' },
+              { label: 'Daily', value: cost.daily_cost_usd, color: 'bg-emerald-500' },
+              { label: 'Monthly', value: cost.monthly_cost_usd, color: 'bg-sky-500' },
             ].map(({ label, value, color }) => (
               <div key={label}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-400">{label}</span>
-                  <span className="text-white font-medium">{formatUSD(value)}</span>
+                <div className="mb-1 flex justify-between text-sm">
+                  <span className="text-slate-400">{label}</span>
+                  <span className="font-medium text-slate-100">{formatUSD(value)}</span>
                 </div>
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700">
                   <div
                     className={`h-full rounded-full ${color}`}
                     style={{ width: `${Math.max((value / maxCost) * 100, 2)}%` }}
@@ -172,39 +170,38 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-3 border-t border-gray-800 flex justify-between text-sm">
-            <span className="text-gray-400">Total Tokens</span>
-            <span className="text-white">{cost.total_tokens.toLocaleString()}</span>
+          <div className="mt-4 flex justify-between border-t border-slate-700/80 pt-3 text-sm">
+            <span className="text-slate-400">Total Tokens</span>
+            <span className="text-slate-100">{cost.total_tokens.toLocaleString()}</span>
           </div>
-          <div className="flex justify-between text-sm mt-1">
-            <span className="text-gray-400">Requests</span>
-            <span className="text-white">{cost.request_count.toLocaleString()}</span>
+          <div className="mt-1 flex justify-between text-sm">
+            <span className="text-slate-400">Requests</span>
+            <span className="text-slate-100">{cost.request_count.toLocaleString()}</span>
           </div>
         </div>
 
-        {/* Active Channels */}
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-2 mb-4">
-            <Radio className="h-5 w-5 text-indigo-400" />
-            <h2 className="text-base font-semibold text-white">Active Channels</h2>
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <Radio className="h-5 w-5 text-teal-400" />
+            <h2 className="text-base font-semibold text-slate-50">Active Channels</h2>
           </div>
           <div className="space-y-2">
             {Object.entries(status.channels).length === 0 ? (
-              <p className="text-sm text-gray-500">No channels configured</p>
+              <p className="text-sm text-slate-500">No channels configured</p>
             ) : (
               Object.entries(status.channels).map(([name, active]) => (
                 <div
                   key={name}
-                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-800/50"
+                  className="flex items-center justify-between rounded-lg bg-slate-700/40 px-3 py-2"
                 >
-                  <span className="text-sm text-white capitalize">{name}</span>
+                  <span className="capitalize text-sm text-slate-100">{name}</span>
                   <div className="flex items-center gap-2">
                     <span
                       className={`inline-block h-2.5 w-2.5 rounded-full ${
-                        active ? 'bg-green-500' : 'bg-gray-500'
+                        active ? 'bg-emerald-500' : 'bg-slate-500'
                       }`}
                     />
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-slate-400">
                       {active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
@@ -214,30 +211,29 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Health Grid */}
-        <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="h-5 w-5 text-indigo-400" />
-            <h2 className="text-base font-semibold text-white">Component Health</h2>
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/50 p-5 shadow-sm">
+          <div className="mb-4 flex items-center gap-2">
+            <Activity className="h-5 w-5 text-teal-400" />
+            <h2 className="text-base font-semibold text-slate-50">Component Health</h2>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {Object.entries(status.health.components).length === 0 ? (
-              <p className="text-sm text-gray-500 col-span-2">No components reporting</p>
+              <p className="col-span-2 text-sm text-slate-500">No components reporting</p>
             ) : (
               Object.entries(status.health.components).map(([name, comp]) => (
                 <div
                   key={name}
-                  className={`rounded-lg p-3 border ${healthBorder(comp.status)} bg-gray-800/50`}
+                  className={`rounded-lg border p-3 ${healthBorder(comp.status)} bg-slate-700/40`}
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="mb-1 flex items-center gap-2">
                     <span className={`inline-block h-2 w-2 rounded-full ${healthColor(comp.status)}`} />
-                    <span className="text-sm font-medium text-white capitalize truncate">
+                    <span className="truncate text-sm font-medium capitalize text-slate-100">
                       {name}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400 capitalize">{comp.status}</p>
+                  <p className="capitalize text-xs text-slate-400">{comp.status}</p>
                   {comp.restart_count > 0 && (
-                    <p className="text-xs text-yellow-400 mt-1">
+                    <p className="mt-1 text-xs text-amber-400">
                       Restarts: {comp.restart_count}
                     </p>
                   )}

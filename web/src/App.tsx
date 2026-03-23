@@ -55,31 +55,34 @@ function PairingDialog({ onPair }: { onPair: (code: string) => Promise<void> }) 
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f14] flex items-center justify-center">
-      <div className="bg-[#1c1c26] rounded-2xl p-8 w-full max-w-md border border-[#2d2d3a] shadow-xl">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-white mb-2">DatumBridge</h1>
-          <p className="text-gray-400">Enter the pairing code from your terminal</p>
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-2xl border border-[#334155] bg-[#1e293b] p-8 shadow-xl shadow-black/20">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-teal-500/20 text-teal-400">
+            <span className="text-xl font-bold">DB</span>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-50">DatumBridge</h1>
+          <p className="mt-2 text-sm text-slate-400">Enter the 6-digit pairing code from your terminal</p>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="6-digit code"
-            className="w-full px-4 py-3 bg-[#18181f] border border-[#2d2d3a] rounded-lg text-white text-center text-2xl tracking-widest focus:outline-none focus:border-indigo-500 mb-4"
+            placeholder="000000"
+            className="w-full rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3.5 text-center text-2xl tracking-[0.4em] text-slate-100 placeholder:text-slate-500 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
             maxLength={6}
             autoFocus
           />
           {error && (
-            <p className="text-red-400 text-sm mb-4 text-center">{error}</p>
+            <p className="text-center text-sm text-rose-400">{error}</p>
           )}
           <button
             type="submit"
             disabled={loading || code.length < 6}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+            className="btn-primary w-full py-3 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? 'Pairing...' : 'Pair'}
+            {loading ? 'Pairing…' : 'Pair device'}
           </button>
         </form>
       </div>
@@ -150,8 +153,11 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0f0f14] flex items-center justify-center">
-        <p className="text-gray-400">Connecting...</p>
+      <div className="flex min-h-screen items-center justify-center bg-[#0f172a]">
+        <div className="flex items-center gap-3 text-slate-400">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+          <span>Connecting…</span>
+        </div>
       </div>
     );
   }
