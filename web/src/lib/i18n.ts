@@ -168,6 +168,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'permissions.saved': 'Permissions saved successfully.',
     'permissions.error': 'Failed to save permissions.',
     'permissions.remove': 'Remove',
+    'permissions.approval_section': 'Supervised approvals',
+    'permissions.approval_section_desc':
+      'Applies when autonomy level is supervised. Full and read-only modes ignore these toggles. Auto-approve and always-ask lists still take precedence.',
+    'permissions.require_tool_approval': 'Prompt before tools',
+    'permissions.require_tool_approval_desc':
+      'Ask for confirmation before running tools that are not auto-approved or session-granted. Turn off to run without prompts (except tools in the always-ask list).',
+    'permissions.require_shell_approval': 'Prompt before shell',
+    'permissions.require_shell_approval_desc':
+      'Same as above, but only for the shell tool—useful if you want other tools open while keeping shell gated.',
 
     // Auth / Pairing
     'auth.pair': 'Pair Device',
@@ -373,6 +382,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'permissions.saved': 'Izinler basariyla kaydedildi.',
     'permissions.error': 'Izinler kaydedilemedi.',
     'permissions.remove': 'Kaldir',
+    'permissions.approval_section': 'Gozetimli onaylar',
+    'permissions.approval_section_desc':
+      'Ozerklik seviyesi gozetimliyken gecerlidir. Tam ve salt okunur modlar bu anahtarlari yok sayar. Otomatik onay ve her zaman sor listeleri once gelir.',
+    'permissions.require_tool_approval': 'Araclardan once uste sor',
+    'permissions.require_tool_approval_desc':
+      'Otomatik onay veya oturum izni olmayan araclar calismadan once onay iste. Kapatirsaniz her zaman sor listesindekiler disinda uyar olmadan calisir.',
+    'permissions.require_shell_approval': 'Kabuktan once uste sor',
+    'permissions.require_shell_approval_desc':
+      'Yalnizca shell araci icin ayni mantik—diger araclari acik birakip kabugu kisitlamak icin.',
 
     // Auth / Pairing
     'auth.pair': 'Cihaz Esle',
@@ -578,6 +596,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'permissions.saved': '权限保存成功。',
     'permissions.error': '权限保存失败。',
     'permissions.remove': '移除',
+    'permissions.approval_section': '监督模式下的确认',
+    'permissions.approval_section_desc':
+      '仅在自主级别为 supervised 时生效；full 与 read_only 会忽略这两项。auto_approve 与 always_ask 列表优先级更高。',
+    'permissions.require_tool_approval': '运行工具前确认',
+    'permissions.require_tool_approval_desc':
+      '对未自动批准或未授予会话权限的工具，执行前先确认。关闭后除 always_ask 中的工具外将不再弹出确认。',
+    'permissions.require_shell_approval': '运行 shell 前确认',
+    'permissions.require_shell_approval_desc':
+      '仅针对 shell 工具的独立开关，可在放宽其他工具的同时仍要求 shell 确认。',
 
     // Auth / Pairing
     'auth.pair': '设备配对',

@@ -10,6 +10,7 @@ use parking_lot::{Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::io::{self, BufRead, Write};
+use std::sync::atomic::{AtomicBool, Ordering};
 use uuid::Uuid;
 
 // ── Types ────────────────────────────────────────────────────────
@@ -75,6 +76,10 @@ pub struct ApprovalManager {
     auto_approve: RwLock<HashSet<String>>,
     /// Tools that always need approval, ignoring session allowlist (config + runtime updates).
     always_ask: RwLock<HashSet<String>>,
+    /// Supervised-mode default: prompt before tools other than `auto_approve` / session grants.
+    supervised_require_tool_approval: AtomicBool,
+    /// Supervised-mode default for the `shell` tool only.
+    supervised_require_shell_approval: AtomicBool,
     /// Autonomy level from config.
     autonomy_level: AutonomyLevel,
     /// Session-scoped allowlist built from "Always" responses.
@@ -129,6 +134,12 @@ impl ApprovalManager {
         Self {
             auto_approve: RwLock::new(config.auto_approve.iter().cloned().collect()),
             always_ask: RwLock::new(config.always_ask.iter().cloned().collect()),
+            supervised_require_tool_approval: AtomicBool::new(
+                config.supervised_require_tool_approval,
+            ),
+            supervised_require_shell_approval: AtomicBool::new(
+                config.supervised_require_shell_approval,
+            ),
             autonomy_level: config.level,
             session_allowlist: Mutex::new(HashSet::new()),
             non_cli_allowlist: Mutex::new(HashSet::new()),
@@ -177,6 +188,17 @@ impl ApprovalManager {
         // Session allowlist (from prior "Always" responses).
         let allowlist = self.session_allowlist.lock();
         if allowlist.contains(tool_name) {
+            return false;
+        }
+
+        let require_default = if tool_name == "shell" {
+            self.supervised_require_shell_approval
+                .load(Ordering::Acquire)
+        } else {
+            self.supervised_require_tool_approval
+                .load(Ordering::Acquire)
+        };
+        if !require_default {
             return false;
         }
 
@@ -362,6 +384,8 @@ impl ApprovalManager {
             String,
             NonCliNaturalLanguageApprovalMode,
         >,
+        supervised_require_tool_approval: bool,
+        supervised_require_shell_approval: bool,
     ) {
         {
             let mut auto = self.auto_approve.write();
@@ -387,6 +411,10 @@ impl ApprovalManager {
                 non_cli_natural_language_approval_mode_by_channel,
             );
         }
+        self.supervised_require_tool_approval
+            .store(supervised_require_tool_approval, Ordering::Release);
+        self.supervised_require_shell_approval
+            .store(supervised_require_shell_approval, Ordering::Release);
     }
 
     /// Snapshot runtime auto_approve entries.
@@ -705,6 +733,49 @@ mod tests {
         let mgr = ApprovalManager::from_config(&supervised_config());
         assert!(mgr.needs_approval("file_write"));
         assert!(mgr.needs_approval("http_request"));
+    }
+
+    #[test]
+    fn supervised_relaxed_tools_still_prompts_shell_when_configured() {
+        let cfg = AutonomyConfig {
+            level: AutonomyLevel::Supervised,
+            supervised_require_tool_approval: false,
+            supervised_require_shell_approval: true,
+            always_ask: vec![],
+            auto_approve: vec![],
+            ..AutonomyConfig::default()
+        };
+        let mgr = ApprovalManager::from_config(&cfg);
+        assert!(!mgr.needs_approval("file_write"));
+        assert!(mgr.needs_approval("shell"));
+    }
+
+    #[test]
+    fn supervised_relaxed_shell_does_not_prompt_when_configured() {
+        let cfg = AutonomyConfig {
+            level: AutonomyLevel::Supervised,
+            supervised_require_tool_approval: true,
+            supervised_require_shell_approval: false,
+            always_ask: vec![],
+            auto_approve: vec![],
+            ..AutonomyConfig::default()
+        };
+        let mgr = ApprovalManager::from_config(&cfg);
+        assert!(mgr.needs_approval("file_write"));
+        assert!(!mgr.needs_approval("shell"));
+    }
+
+    #[test]
+    fn always_ask_overrides_relaxed_supervised_tool_default() {
+        let cfg = AutonomyConfig {
+            level: AutonomyLevel::Supervised,
+            supervised_require_tool_approval: false,
+            always_ask: vec!["file_write".into()],
+            auto_approve: vec![],
+            ..AutonomyConfig::default()
+        };
+        let mgr = ApprovalManager::from_config(&cfg);
+        assert!(mgr.needs_approval("file_write"));
     }
 
     #[test]
@@ -1035,6 +1106,8 @@ mod tests {
             &["telegram:alice".to_string()],
             NonCliNaturalLanguageApprovalMode::Direct,
             &mode_overrides,
+            true,
+            true,
         );
 
         assert!(!mgr.needs_approval("mock_price"));

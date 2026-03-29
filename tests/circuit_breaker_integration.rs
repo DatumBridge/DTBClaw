@@ -2,8 +2,8 @@
 //!
 //! Tests ProviderHealthTracker opening/closing semantics and reset behavior.
 
-use std::time::Duration;
 use octoclaw::providers::health::ProviderHealthTracker;
+use std::time::Duration;
 
 #[test]
 fn circuit_breaker_opens_after_failures() {

@@ -110,10 +110,7 @@ impl CursorCliTool {
     }
 
     async fn cmd_open(&self, args: &serde_json::Value) -> anyhow::Result<ToolResult> {
-        let path = args
-            .get("path")
-            .and_then(|v| v.as_str())
-            .unwrap_or(".");
+        let path = args.get("path").and_then(|v| v.as_str()).unwrap_or(".");
         let path = Self::sanitize_path(path)?;
 
         let reuse_window = args
@@ -121,10 +118,7 @@ impl CursorCliTool {
             .and_then(|v| v.as_bool())
             .unwrap_or(true);
 
-        let wait = args
-            .get("wait")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
+        let wait = args.get("wait").and_then(|v| v.as_bool()).unwrap_or(false);
 
         let mut cli_args = Vec::new();
         if reuse_window {
@@ -159,14 +153,8 @@ impl CursorCliTool {
             .ok_or_else(|| anyhow::anyhow!("Missing 'file' parameter for goto"))?;
         let file = Self::sanitize_path(file)?;
 
-        let line = args
-            .get("line")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(1);
-        let column = args
-            .get("column")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(1);
+        let line = args.get("line").and_then(|v| v.as_u64()).unwrap_or(1);
+        let column = args.get("column").and_then(|v| v.as_u64()).unwrap_or(1);
 
         let goto_spec = format!("{file}:{line}:{column}");
 
@@ -192,8 +180,7 @@ impl CursorCliTool {
         let file1 = Self::sanitize_path(file1)?;
         let file2 = Self::sanitize_path(file2)?;
 
-        self.run_cursor_command(&["--diff", &file1, &file2])
-            .await?;
+        self.run_cursor_command(&["--diff", &file1, &file2]).await?;
 
         Ok(ToolResult {
             success: true,
@@ -242,11 +229,13 @@ impl CursorCliTool {
     }
 
     async fn cmd_list_extensions(&self) -> anyhow::Result<ToolResult> {
-        let output = self
-            .run_cursor_command(&["--list-extensions"])
-            .await?;
+        let output = self.run_cursor_command(&["--list-extensions"]).await?;
 
-        let extensions: Vec<&str> = output.lines().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+        let extensions: Vec<&str> = output
+            .lines()
+            .map(|l| l.trim())
+            .filter(|l| !l.is_empty())
+            .collect();
 
         Ok(ToolResult {
             success: true,
@@ -286,7 +275,12 @@ impl CursorCliTool {
     async fn cmd_status(&self) -> anyhow::Result<ToolResult> {
         let output = self.run_cursor_command(&["--version"]).await?;
 
-        let version = output.lines().next().unwrap_or("unknown").trim().to_string();
+        let version = output
+            .lines()
+            .next()
+            .unwrap_or("unknown")
+            .trim()
+            .to_string();
 
         let extensions = self
             .run_cursor_command(&["--list-extensions"])
@@ -412,10 +406,7 @@ impl CursorCliTool {
         }
 
         let model = args.get("model").and_then(|v| v.as_str());
-        let force = args
-            .get("force")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(true);
+        let force = args.get("force").and_then(|v| v.as_bool()).unwrap_or(true);
         let headless = args
             .get("headless")
             .and_then(|v| v.as_bool())
@@ -518,11 +509,8 @@ echo "=== Agent $FINAL_STATUS at $END_TIME (exit code: $EXIT_CODE) ===" | tee -a
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
-            tokio::fs::set_permissions(
-                &script_file,
-                std::fs::Permissions::from_mode(0o755),
-            )
-            .await?;
+            tokio::fs::set_permissions(&script_file, std::fs::Permissions::from_mode(0o755))
+                .await?;
         }
 
         let script_path_str = script_file.display().to_string();
@@ -597,10 +585,7 @@ echo "=== Agent $FINAL_STATUS at $END_TIME (exit code: $EXIT_CODE) ===" | tee -a
             .unwrap_or_else(|| self.workspace_dir.display().to_string());
         let workspace = Self::sanitize_path(&workspace)?;
 
-        let tail_lines = args
-            .get("tail")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(50) as usize;
+        let tail_lines = args.get("tail").and_then(|v| v.as_u64()).unwrap_or(50) as usize;
 
         let status_path = Path::new(&workspace).join(AGENT_STATUS_FILE);
         let log_path = Path::new(&workspace).join(AGENT_OUTPUT_LOG);
@@ -1189,10 +1174,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let tool = test_tool(tmp.path());
 
-        let result = tool
-            .execute(json!({"operation": "reboot"}))
-            .await
-            .unwrap();
+        let result = tool.execute(json!({"operation": "reboot"})).await.unwrap();
         assert!(!result.success);
         assert!(result
             .error
@@ -1210,16 +1192,9 @@ mod tests {
         });
         let tool = CursorCliTool::new(security, tmp.path().to_path_buf());
 
-        let result = tool
-            .execute(json!({"operation": "status"}))
-            .await
-            .unwrap();
+        let result = tool.execute(json!({"operation": "status"})).await.unwrap();
         assert!(!result.success);
-        assert!(result
-            .error
-            .as_deref()
-            .unwrap_or("")
-            .contains("rate limit"));
+        assert!(result.error.as_deref().unwrap_or("").contains("rate limit"));
     }
 
     #[tokio::test]
@@ -1227,10 +1202,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let tool = test_tool(tmp.path());
 
-        let result = tool
-            .execute(json!({"operation": "help"}))
-            .await
-            .unwrap();
+        let result = tool.execute(json!({"operation": "help"})).await.unwrap();
         assert!(result.success);
         assert!(result.output.contains("prompt"));
         assert!(result.output.contains("agent"));
@@ -1283,10 +1255,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let tool = test_tool(tmp.path());
 
-        let result = tool
-            .execute(json!({"operation": "help"}))
-            .await
-            .unwrap();
+        let result = tool.execute(json!({"operation": "help"})).await.unwrap();
         let parsed: serde_json::Value = serde_json::from_str(&result.output).unwrap();
         assert!(parsed["prerequisite"].as_str().unwrap().contains("cursor"));
         assert!(parsed["operations"]["prompt"]["examples"].is_array());
@@ -1322,15 +1291,8 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let tool = test_tool(tmp.path());
 
-        let result = tool
-            .execute(json!({"operation": "reboot"}))
-            .await
-            .unwrap();
+        let result = tool.execute(json!({"operation": "reboot"})).await.unwrap();
         assert!(!result.success);
-        assert!(result
-            .error
-            .as_deref()
-            .unwrap_or("")
-            .contains("help"));
+        assert!(result.error.as_deref().unwrap_or("").contains("help"));
     }
 }

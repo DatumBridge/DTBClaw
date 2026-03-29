@@ -9,8 +9,6 @@
 
 use anyhow::Result;
 use async_trait::async_trait;
-use serde_json::json;
-use std::sync::{Arc, Mutex};
 use octoclaw::agent::agent::Agent;
 use octoclaw::agent::dispatcher::NativeToolDispatcher;
 use octoclaw::config::MemoryConfig;
@@ -19,6 +17,8 @@ use octoclaw::memory::Memory;
 use octoclaw::observability::{NoopObserver, Observer};
 use octoclaw::providers::{ChatRequest, ChatResponse, Provider, ToolCall};
 use octoclaw::tools::{Tool, ToolResult};
+use serde_json::json;
+use std::sync::{Arc, Mutex};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock infrastructure

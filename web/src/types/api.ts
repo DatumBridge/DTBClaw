@@ -135,6 +135,10 @@ export interface Permissions {
   allowed_roots: string[];
   forbidden_paths: string[];
   allowed_commands: string[];
+  /** When true, supervised mode prompts before tools not auto-approved / session-granted. */
+  supervised_require_tool_approval: boolean;
+  /** Same for the `shell` tool only. */
+  supervised_require_shell_approval: boolean;
 }
 
 export interface WsMessage {

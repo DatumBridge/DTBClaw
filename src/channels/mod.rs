@@ -279,6 +279,8 @@ struct RuntimeConfigState {
 struct RuntimeAutonomyPolicy {
     auto_approve: Vec<String>,
     always_ask: Vec<String>,
+    supervised_require_tool_approval: bool,
+    supervised_require_shell_approval: bool,
     non_cli_excluded_tools: Vec<String>,
     non_cli_approval_approvers: Vec<String>,
     non_cli_natural_language_approval_mode: NonCliNaturalLanguageApprovalMode,
@@ -1106,6 +1108,8 @@ fn runtime_autonomy_policy_from_config(config: &Config) -> RuntimeAutonomyPolicy
     RuntimeAutonomyPolicy {
         auto_approve: config.autonomy.auto_approve.clone(),
         always_ask: config.autonomy.always_ask.clone(),
+        supervised_require_tool_approval: config.autonomy.supervised_require_tool_approval,
+        supervised_require_shell_approval: config.autonomy.supervised_require_shell_approval,
         non_cli_excluded_tools: config.autonomy.non_cli_excluded_tools.clone(),
         non_cli_approval_approvers: config.autonomy.non_cli_approval_approvers.clone(),
         non_cli_natural_language_approval_mode: config
@@ -1724,6 +1728,8 @@ async fn maybe_apply_runtime_config_update(ctx: &ChannelRuntimeContext) -> Resul
         &next_autonomy_policy.non_cli_approval_approvers,
         next_autonomy_policy.non_cli_natural_language_approval_mode,
         &next_autonomy_policy.non_cli_natural_language_approval_mode_by_channel,
+        next_autonomy_policy.supervised_require_tool_approval,
+        next_autonomy_policy.supervised_require_shell_approval,
     );
     {
         let mut excluded = ctx
@@ -9664,6 +9670,8 @@ BTC is currently around $65,000 based on latest tool output."#
         cfg.default_model = Some("test-model".to_string());
         cfg.autonomy.auto_approve = vec!["mock_price".to_string()];
         cfg.autonomy.always_ask = vec!["shell".to_string()];
+        cfg.autonomy.supervised_require_tool_approval = false;
+        cfg.autonomy.supervised_require_shell_approval = true;
         cfg.autonomy.non_cli_excluded_tools = vec!["browser_open".to_string()];
         cfg.autonomy.non_cli_approval_approvers = vec!["telegram:alice".to_string()];
         cfg.autonomy.non_cli_natural_language_approval_mode =
@@ -9687,6 +9695,8 @@ BTC is currently around $65,000 based on latest tool output."#
 
         assert_eq!(policy.auto_approve, vec!["mock_price".to_string()]);
         assert_eq!(policy.always_ask, vec!["shell".to_string()]);
+        assert!(!policy.supervised_require_tool_approval);
+        assert!(policy.supervised_require_shell_approval);
         assert_eq!(
             policy.non_cli_excluded_tools,
             vec!["browser_open".to_string()]

@@ -1788,6 +1788,39 @@ fn collect_device_info() -> (String, String, String) {
     (device_name, device_ip, device_mac)
 }
 
+/// Read full body and parse JSON; explain HTML/SPA responses (common when /api/ws-hub never reaches the hub).
+async fn hub_register_response_json(
+    resp: reqwest::Response,
+    context: &'static str,
+) -> Result<serde_json::Value> {
+    let status = resp.status();
+    let ct = resp
+        .headers()
+        .get(reqwest::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("(missing)")
+        .to_string();
+    let bytes = resp
+        .bytes()
+        .await
+        .with_context(|| format!("{context}: failed to read response body (HTTP {status})"))?;
+    let text = String::from_utf8_lossy(&bytes);
+    if !status.is_success() {
+        anyhow::bail!("{context}: hub returned HTTP {status} (content-type: {ct}): {text}");
+    }
+    serde_json::from_str(&text).map_err(|e| {
+        let preview: String = text.chars().take(400).collect();
+        let hint = if text.trim_start().starts_with('<') {
+            " Response looks like HTML — the request hit DatumBridge Studio (or another front-end) instead of datumbridge-mcp-ws-hub. Fix Ingress/path so /api/ws-hub/ reaches Studio nginx with that prefix, rebuild Studio with nginx routes for /api/v1/devices/* and /mcp|/ws to the hub, or use `kubectl port-forward` to the hub pod and `--hub-url http://127.0.0.1:8000`."
+        } else {
+            ""
+        };
+        anyhow::anyhow!(
+            "{context}: expected JSON from hub (HTTP {status}, content-type: {ct}), but response is not valid JSON: {e}. Body preview: {preview:?}.{hint}"
+        )
+    })
+}
+
 async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()> {
     let hub_url = hub_url_arg
         .filter(|s| !s.is_empty())
@@ -1814,13 +1847,13 @@ async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()
         .send()
         .await
         .context("Failed to connect to hub")?;
-    if !start_resp.status().is_success() {
-        let status = start_resp.status();
-        let body = start_resp.text().await.unwrap_or_default();
-        anyhow::bail!("Hub returned {status}: {body}");
-    }
-    let start_json: serde_json::Value = start_resp.json().await?;
-    if !start_json.get("pairing_code").and_then(|v| v.as_str()).is_some() {
+    let start_json =
+        hub_register_response_json(start_resp, "POST /api/v1/devices/register").await?;
+    if !start_json
+        .get("pairing_code")
+        .and_then(|v| v.as_str())
+        .is_some()
+    {
         anyhow::bail!("Hub did not return pairing_code");
     }
 
@@ -1851,12 +1884,8 @@ async fn run_register(config: &Config, hub_url_arg: Option<String>) -> Result<()
         .send()
         .await
         .context("Failed to confirm pairing")?;
-    if !confirm_resp.status().is_success() {
-        let status = confirm_resp.status();
-        let body = confirm_resp.text().await.unwrap_or_default();
-        anyhow::bail!("Hub confirm returned {status}: {body}");
-    }
-    let confirm_json: serde_json::Value = confirm_resp.json().await?;
+    let confirm_json =
+        hub_register_response_json(confirm_resp, "POST /api/v1/devices/register/confirm").await?;
     let device_id = confirm_json
         .get("device_id")
         .and_then(|v| v.as_str())

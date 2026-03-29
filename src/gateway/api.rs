@@ -572,7 +572,7 @@ pub async fn handle_api_pairing_device_revoke(
     Json(serde_json::json!({"status": "ok", "revoked": true, "id": id})).into_response()
 }
 
-/// GET /api/permissions — read autonomy permissions (live values)
+/// GET /api/permissions — read autonomy permissions (live path/shell policy + persisted supervised approval toggles)
 pub async fn handle_api_permissions_get(
     State(state): State<AppState>,
     headers: HeaderMap,
@@ -584,11 +584,18 @@ pub async fn handle_api_permissions_get(
     let (workspace_only, allowed_commands, forbidden_paths, allowed_roots) =
         state.security.effective_permissions();
 
+    let cfg = state.config.lock();
+    let supervised_require_tool_approval = cfg.autonomy.supervised_require_tool_approval;
+    let supervised_require_shell_approval = cfg.autonomy.supervised_require_shell_approval;
+    drop(cfg);
+
     Json(serde_json::json!({
         "workspace_only": workspace_only,
         "allowed_roots": allowed_roots,
         "forbidden_paths": forbidden_paths,
         "allowed_commands": allowed_commands,
+        "supervised_require_tool_approval": supervised_require_tool_approval,
+        "supervised_require_shell_approval": supervised_require_shell_approval,
     }))
     .into_response()
 }
@@ -599,6 +606,8 @@ pub struct PermissionsBody {
     pub allowed_roots: Option<Vec<String>>,
     pub forbidden_paths: Option<Vec<String>>,
     pub allowed_commands: Option<Vec<String>>,
+    pub supervised_require_tool_approval: Option<bool>,
+    pub supervised_require_shell_approval: Option<bool>,
 }
 
 /// PUT /api/permissions — update autonomy permissions (hot-reloaded)
@@ -624,6 +633,12 @@ pub async fn handle_api_permissions_put(
     }
     if let Some(v) = body.allowed_commands {
         config.autonomy.allowed_commands = v;
+    }
+    if let Some(v) = body.supervised_require_tool_approval {
+        config.autonomy.supervised_require_tool_approval = v;
+    }
+    if let Some(v) = body.supervised_require_shell_approval {
+        config.autonomy.supervised_require_shell_approval = v;
     }
 
     if let Err(e) = config.validate() {

@@ -12,6 +12,7 @@ import {
   AlertCircle,
   ToggleLeft,
   ToggleRight,
+  UserCheck,
 } from 'lucide-react';
 import type { Permissions as PermissionsType } from '@/types/api';
 import { getPermissions, putPermissions } from '@/lib/api';
@@ -119,7 +120,15 @@ export default function Permissions() {
 
   useEffect(() => {
     getPermissions()
-      .then((data) => setPermissions(data))
+      .then((data) =>
+        setPermissions({
+          ...data,
+          supervised_require_tool_approval:
+            data.supervised_require_tool_approval ?? true,
+          supervised_require_shell_approval:
+            data.supervised_require_shell_approval ?? true,
+        }),
+      )
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
@@ -231,6 +240,73 @@ export default function Permissions() {
             className="flex-shrink-0 ml-4"
           >
             {permissions.workspace_only ? (
+              <ToggleRight className="h-8 w-8 text-blue-400" />
+            ) : (
+              <ToggleLeft className="h-8 w-8 text-gray-500" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Supervised: interactive tool / shell approval */}
+      <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-5">
+        <div className="flex items-center gap-2 mb-1">
+          <UserCheck className="h-5 w-5 text-cyan-400" />
+          <h2 className="text-sm font-semibold text-white">
+            {t('permissions.approval_section')}
+          </h2>
+        </div>
+        <p className="text-xs text-gray-400 -mt-2">
+          {t('permissions.approval_section_desc')}
+        </p>
+
+        <div className="flex items-center justify-between pt-1 border-t border-gray-800">
+          <div>
+            <h3 className="text-sm font-medium text-white">
+              {t('permissions.require_tool_approval')}
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {t('permissions.require_tool_approval_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              update({
+                supervised_require_tool_approval:
+                  !permissions.supervised_require_tool_approval,
+              })
+            }
+            className="flex-shrink-0 ml-4"
+          >
+            {permissions.supervised_require_tool_approval ? (
+              <ToggleRight className="h-8 w-8 text-blue-400" />
+            ) : (
+              <ToggleLeft className="h-8 w-8 text-gray-500" />
+            )}
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between pt-3 border-t border-gray-800">
+          <div>
+            <h3 className="text-sm font-medium text-white">
+              {t('permissions.require_shell_approval')}
+            </h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {t('permissions.require_shell_approval_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              update({
+                supervised_require_shell_approval:
+                  !permissions.supervised_require_shell_approval,
+              })
+            }
+            className="flex-shrink-0 ml-4"
+          >
+            {permissions.supervised_require_shell_approval ? (
               <ToggleRight className="h-8 w-8 text-blue-400" />
             ) : (
               <ToggleLeft className="h-8 w-8 text-gray-500" />

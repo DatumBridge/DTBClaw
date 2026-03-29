@@ -971,6 +971,8 @@ Environment overrides:
 | `allow_sensitive_file_reads` | `false` | allow `file_read` on sensitive files/dirs (for example `.env`, `.aws/credentials`, private keys) |
 | `allow_sensitive_file_writes` | `false` | allow `file_write`/`file_edit` on sensitive files/dirs (for example `.env`, `.aws/credentials`, private keys) |
 | `auto_approve` | `[]` | tool operations always auto-approved |
+| `supervised_require_tool_approval` | `true` | in `supervised` mode, prompt before tools not in `auto_approve` / session grants; set `false` to skip prompts except for `always_ask` tools |
+| `supervised_require_shell_approval` | `true` | same as `supervised_require_tool_approval`, but only for the `shell` tool (overrides the global default for shell) |
 | `always_ask` | `[]` | tool operations that always require approval |
 | `non_cli_excluded_tools` | built-in denylist (includes `shell`, `process`, `file_write`, ...) | tools hidden from non-CLI channel tool specs |
 | `non_cli_approval_approvers` | `[]` | optional allowlist for who can run non-CLI approval-management commands |
@@ -979,6 +981,7 @@ Environment overrides:
 
 Notes:
 
+- `supervised_require_tool_approval` and `supervised_require_shell_approval` only affect interactive approval prompts in `supervised` mode. They do not change `read_only` / `full` behavior, `auto_approve`, `always_ask`, or non-CLI tool exclusion lists.
 - `level = "full"` skips medium-risk approval gating for shell execution, while still enforcing configured guardrails.
 - Access outside the workspace requires `allowed_roots`, even when `workspace_only = false`.
 - `allowed_roots` supports absolute paths, `~/...`, and workspace-relative paths.

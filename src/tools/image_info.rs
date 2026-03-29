@@ -8,6 +8,8 @@ use std::sync::Arc;
 
 /// Maximum file size we will read and base64-encode (5 MB).
 const MAX_IMAGE_BYTES: u64 = 5_242_880;
+/// When `include_base64` is omitted, embed base64 automatically for chat UIs up to this size (aligned with file_read inline cap).
+const MAX_IMAGE_INLINE_CHAT_BYTES: u64 = 2 * 1024 * 1024;
 
 /// Tool to read image metadata and optionally return base64-encoded data.
 ///
@@ -151,7 +153,7 @@ impl Tool for ImageInfoTool {
     }
 
     fn description(&self) -> &str {
-        "Read image file metadata (format, dimensions, size) and optionally return base64-encoded data."
+        "Read image file metadata (format, dimensions, size). For files up to 2 MiB, base64 is included by default so chat clients can render the image; set include_base64=false to fetch metadata only. Larger files (up to 5 MiB max) omit base64 unless include_base64=true."
     }
 
     fn parameters_schema(&self) -> serde_json::Value {
@@ -164,7 +166,7 @@ impl Tool for ImageInfoTool {
                 },
                 "include_base64": {
                     "type": "boolean",
-                    "description": "Include base64-encoded image data in output (default: false)"
+                    "description": "Include base64 in output. Default: true for files ≤2 MiB (for UI display); false keeps metadata only. For files >2 MiB, default is false unless set true (still capped at 5 MiB read limit)."
                 }
             },
             "required": ["path"]
@@ -176,11 +178,6 @@ impl Tool for ImageInfoTool {
             .get("path")
             .and_then(|v| v.as_str())
             .ok_or_else(|| anyhow::anyhow!("Missing 'path' parameter"))?;
-
-        let include_base64 = args
-            .get("include_base64")
-            .and_then(serde_json::Value::as_bool)
-            .unwrap_or(false);
 
         let resolved_path = match self.resolve_image_path(path_str) {
             Ok(path) => path,
@@ -206,6 +203,11 @@ impl Tool for ImageInfoTool {
             .map_err(|e| anyhow::anyhow!("Failed to read file metadata: {e}"))?;
 
         let file_size = metadata.len();
+
+        let include_base64 = match args.get("include_base64").and_then(serde_json::Value::as_bool) {
+            Some(b) => b,
+            None => file_size <= MAX_IMAGE_INLINE_CHAT_BYTES,
+        };
 
         if file_size > MAX_IMAGE_BYTES {
             return Ok(ToolResult {
@@ -493,7 +495,20 @@ mod tests {
         assert!(result.success);
         assert!(result.output.contains("Format: png"));
         assert!(result.output.contains("Dimensions: 1x1"));
-        assert!(!result.output.contains("data:"));
+        assert!(
+            result.output.contains("data:image/png;base64,"),
+            "small images should include base64 by default for chat display"
+        );
+
+        let meta_only = tool
+            .execute(json!({
+                "path": png_path.to_string_lossy(),
+                "include_base64": false
+            }))
+            .await
+            .unwrap();
+        assert!(meta_only.success);
+        assert!(!meta_only.output.contains("data:image"));
 
         // Clean up
         let _ = tokio::fs::remove_dir_all(&dir).await;

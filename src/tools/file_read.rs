@@ -3,11 +3,46 @@ use crate::security::file_link_guard::has_multiple_hard_links;
 use crate::security::sensitive_paths::is_sensitive_file_path;
 use crate::security::SecurityPolicy;
 use async_trait::async_trait;
+use base64::{engine::general_purpose, Engine as _};
 use serde_json::json;
 use std::path::Path;
 use std::sync::Arc;
 
 const MAX_FILE_SIZE_BYTES: u64 = 10 * 1024 * 1024;
+/// Inline image payloads for UIs (e.g. Studio chat) stay under this cap to avoid huge JSON-RPC bodies.
+const MAX_IMAGE_INLINE_BYTES: u64 = 2 * 1024 * 1024;
+
+fn image_mime_from_extension(path: &Path) -> Option<&'static str> {
+    let ext = path.extension()?.to_str()?.to_ascii_lowercase();
+    match ext.as_str() {
+        "png" => Some("image/png"),
+        "jpg" | "jpeg" => Some("image/jpeg"),
+        "gif" => Some("image/gif"),
+        "webp" => Some("image/webp"),
+        "bmp" => Some("image/bmp"),
+        "ico" => Some("image/x-icon"),
+        _ => None,
+    }
+}
+
+fn detect_image_mime(bytes: &[u8]) -> Option<&'static str> {
+    if bytes.len() >= 8 && bytes[..8] == [0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a] {
+        return Some("image/png");
+    }
+    if bytes.len() >= 3 && bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[2] == 0xff {
+        return Some("image/jpeg");
+    }
+    if bytes.len() >= 6 && (&bytes[..6] == b"GIF87a" || &bytes[..6] == b"GIF89a") {
+        return Some("image/gif");
+    }
+    if bytes.len() >= 12 && &bytes[..4] == b"RIFF" && &bytes[8..12] == b"WEBP" {
+        return Some("image/webp");
+    }
+    if bytes.len() >= 2 && bytes[..2] == [b'B', b'M'] {
+        return Some("image/bmp");
+    }
+    None
+}
 
 fn sensitive_file_block_message(path: &str) -> String {
     format!(
@@ -42,7 +77,7 @@ impl Tool for FileReadTool {
     }
 
     fn description(&self) -> &str {
-        "Read file contents with line numbers. Supports partial reading via offset and limit. Extracts text from PDF; other binary files are read with lossy UTF-8 conversion. Sensitive files (for example .env and key material) are blocked by default."
+        "Read file contents with line numbers. Supports partial reading via offset and limit. Extracts text from PDF. Image files (png, jpeg, gif, webp, bmp, ico) return a single JSON object with base64 and mime type for UI display. Other binary files fall back to lossy UTF-8. Sensitive files (for example .env and key material) are blocked by default."
     }
 
     fn parameters_schema(&self) -> serde_json::Value {
@@ -235,7 +270,7 @@ impl Tool for FileReadTool {
                 })
             }
             Err(_) => {
-                // Not valid UTF-8 — read raw bytes and try to extract text
+                // Not valid UTF-8 — read raw bytes and try to extract text / image / PDF
                 let bytes = tokio::fs::read(&resolved_path)
                     .await
                     .map_err(|e| anyhow::anyhow!("Failed to read file: {e}"))?;
@@ -244,6 +279,36 @@ impl Tool for FileReadTool {
                     return Ok(ToolResult {
                         success: true,
                         output: text,
+                        error: None,
+                    });
+                }
+
+                let mime_from_magic = detect_image_mime(&bytes);
+                let mime_from_ext = image_mime_from_extension(Path::new(path));
+                let image_mime = mime_from_magic.or(mime_from_ext);
+
+                if let Some(mime) = image_mime {
+                    if bytes.len() as u64 > MAX_IMAGE_INLINE_BYTES {
+                        return Ok(ToolResult {
+                            success: false,
+                            output: String::new(),
+                            error: Some(format!(
+                                "Image is too large for inline display ({} bytes; max {} bytes). Try a smaller file or compress the image.",
+                                bytes.len(),
+                                MAX_IMAGE_INLINE_BYTES
+                            )),
+                        });
+                    }
+                    let b64 = general_purpose::STANDARD.encode(&bytes);
+                    let payload = json!({
+                        "datumbridge_image": true,
+                        "mime": mime,
+                        "base64": b64,
+                        "path": path,
+                    });
+                    return Ok(ToolResult {
+                        success: true,
+                        output: payload.to_string(),
                         error: None,
                     });
                 }
@@ -337,6 +402,26 @@ mod tests {
             .as_array()
             .unwrap()
             .contains(&json!("offset")));
+    }
+
+    #[tokio::test]
+    async fn file_read_binary_image_returns_json_envelope() {
+        let dir = std::env::temp_dir().join("octoclaw_test_file_read_img");
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+        tokio::fs::create_dir_all(&dir).await.unwrap();
+        let path = dir.join("pixel.png");
+        let mut bytes: Vec<u8> = vec![0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a];
+        bytes.extend(std::iter::repeat(0u8).take(64));
+        tokio::fs::write(&path, &bytes).await.unwrap();
+
+        let tool = FileReadTool::new(test_security(dir.clone()));
+        let args = json!({ "path": "pixel.png" });
+        let res = tool.execute(args).await.unwrap();
+        assert!(res.success, "{:?}", res.error);
+        let v: serde_json::Value = serde_json::from_str(&res.output).unwrap();
+        assert_eq!(v["datumbridge_image"], true);
+        assert_eq!(v["mime"], "image/png");
+        assert!(v["base64"].as_str().is_some_and(|s| !s.is_empty()));
     }
 
     #[tokio::test]

@@ -1370,7 +1370,9 @@ impl SecurityPolicy {
         let expanded_path = expand_user_path(path);
 
         let live = self.live_permissions.read();
-        let workspace_only = live.as_ref().map_or(self.workspace_only, |o| o.workspace_only);
+        let workspace_only = live
+            .as_ref()
+            .map_or(self.workspace_only, |o| o.workspace_only);
         let forbidden_paths = live
             .as_ref()
             .map_or(&self.forbidden_paths, |o| &o.forbidden_paths);
@@ -1422,7 +1424,9 @@ impl SecurityPolicy {
         let forbidden_paths = live
             .as_ref()
             .map_or(&self.forbidden_paths, |o| &o.forbidden_paths);
-        let workspace_only = live.as_ref().map_or(self.workspace_only, |o| o.workspace_only);
+        let workspace_only = live
+            .as_ref()
+            .map_or(self.workspace_only, |o| o.workspace_only);
 
         // Check extra allowed roots (e.g. shared skills directories) before
         // forbidden checks so explicit allowlists can coexist with broad
@@ -1535,7 +1539,9 @@ impl SecurityPolicy {
         let workspace = self.workspace_dir.display();
 
         let live = self.live_permissions.read();
-        let ws_only = live.as_ref().map_or(self.workspace_only, |o| o.workspace_only);
+        let ws_only = live
+            .as_ref()
+            .map_or(self.workspace_only, |o| o.workspace_only);
         let forbidden_paths = live
             .as_ref()
             .map_or(&self.forbidden_paths, |o| &o.forbidden_paths);
@@ -1544,11 +1550,7 @@ impl SecurityPolicy {
             .map_or(&self.allowed_commands, |o| &o.allowed_commands);
 
         let forbidden_preview: String = {
-            let shown: Vec<&str> = forbidden_paths
-                .iter()
-                .take(8)
-                .map(String::as_str)
-                .collect();
+            let shown: Vec<&str> = forbidden_paths.iter().take(8).map(String::as_str).collect();
             let remaining = forbidden_paths.len().saturating_sub(8);
             if remaining > 0 {
                 format!("{} (+ {} more)", shown.join(", "), remaining)
@@ -2118,7 +2120,13 @@ mod tests {
             "path under allowed root must be allowed"
         );
         assert!(
-            p.is_path_allowed(allowed.join("subdir").join("nested").to_string_lossy().as_ref()),
+            p.is_path_allowed(
+                allowed
+                    .join("subdir")
+                    .join("nested")
+                    .to_string_lossy()
+                    .as_ref()
+            ),
             "nested path under allowed root must be allowed"
         );
         assert!(

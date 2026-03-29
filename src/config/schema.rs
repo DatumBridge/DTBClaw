@@ -3497,6 +3497,19 @@ pub struct AutonomyConfig {
     #[serde(default = "default_auto_approve")]
     pub auto_approve: Vec<String>,
 
+    /// In `supervised` autonomy, require an interactive approval prompt before running tools
+    /// that are not listed in `auto_approve` and not covered by a session "Always" grant.
+    ///
+    /// When `false`, those tools run without a prompt unless listed in `always_ask`.
+    /// `full` and `read_only` autonomy levels ignore this flag for prompt behavior.
+    #[serde(default = "default_true")]
+    pub supervised_require_tool_approval: bool,
+
+    /// Same semantics as `supervised_require_tool_approval`, but applies only to the `shell`
+    /// tool. Allows relaxing or tightening shell prompts independently from other tools.
+    #[serde(default = "default_true")]
+    pub supervised_require_shell_approval: bool,
+
     /// Tools that always require interactive approval, even after "Always".
     #[serde(default = "default_always_ask")]
     pub always_ask: Vec<String>,
@@ -3654,6 +3667,8 @@ impl Default for AutonomyConfig {
             allow_sensitive_file_reads: false,
             allow_sensitive_file_writes: false,
             auto_approve: default_auto_approve(),
+            supervised_require_tool_approval: true,
+            supervised_require_shell_approval: true,
             always_ask: default_always_ask(),
             allowed_roots: Vec::new(),
             non_cli_excluded_tools: default_non_cli_excluded_tools(),
@@ -10074,6 +10089,8 @@ ws_url = "ws://127.0.0.1:3002"
                 allow_sensitive_file_reads: false,
                 allow_sensitive_file_writes: false,
                 auto_approve: vec!["file_read".into()],
+                supervised_require_tool_approval: true,
+                supervised_require_shell_approval: true,
                 always_ask: vec![],
                 allowed_roots: vec![],
                 non_cli_excluded_tools: vec![],
