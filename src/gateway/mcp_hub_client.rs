@@ -26,17 +26,66 @@ fn edge_git_sha() -> String {
     option_env!("DTB_GIT_SHA").unwrap_or("").to_string()
 }
 
+fn env_truthy(key: &str) -> bool {
+    std::env::var(key)
+        .map(|v| {
+            matches!(
+                v.trim().to_ascii_lowercase().as_str(),
+                "1" | "true" | "yes" | "on"
+            )
+        })
+        .unwrap_or(false)
+}
+
+fn mission_tool_name_from_env() -> String {
+    std::env::var("MCP_EDGE_MISSION_TOOL_NAME")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "edge_agent_run".to_string())
+}
+
+fn edge_mission_protocol_from_env() -> i32 {
+    std::env::var("EDGE_AGENT_RUN_MISSION_PROTOCOL")
+        .ok()
+        .and_then(|s| s.trim().parse().ok())
+        .filter(|&p| p > 0)
+        .unwrap_or(1)
+}
+
 fn edge_hello_envelope() -> String {
     let git_sha = edge_git_sha();
+    let mut edge = serde_json::Map::new();
+    edge.insert("protocol".into(), json!(1));
+    edge.insert("version".into(), json!(env!("CARGO_PKG_VERSION")));
+    edge.insert("git_sha".into(), json!(git_sha));
+    edge.insert("server_name".into(), json!("dtbclaw"));
+
+    if let Ok(v) = std::env::var("MCP_EDGE_LOCAL_LLM_AVAILABLE") {
+        let t = v.trim().to_ascii_lowercase();
+        if matches!(t.as_str(), "1" | "true" | "yes" | "on") {
+            edge.insert("local_llm_available".into(), json!(true));
+        } else if matches!(t.as_str(), "0" | "false" | "no" | "off") {
+            edge.insert("local_llm_available".into(), json!(false));
+        }
+    }
+
+    if env_truthy("MCP_EDGE_SUPPORTS_MISSION") {
+        edge.insert("supports_edge_mission".into(), json!(true));
+        edge.insert(
+            "mission_tool_name".into(),
+            json!(mission_tool_name_from_env()),
+        );
+        edge.insert(
+            "edge_mission_protocol".into(),
+            json!(edge_mission_protocol_from_env()),
+        );
+    }
+
     let hello = json!({
         "datumbridge": {
             "v": 1,
-            "edge": {
-                "protocol": 1,
-                "version": env!("CARGO_PKG_VERSION"),
-                "git_sha": git_sha,
-                "server_name": "dtbclaw"
-            }
+            "edge": serde_json::Value::Object(edge)
         }
     });
     hello.to_string()

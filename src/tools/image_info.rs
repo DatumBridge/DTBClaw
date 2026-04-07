@@ -204,7 +204,10 @@ impl Tool for ImageInfoTool {
 
         let file_size = metadata.len();
 
-        let include_base64 = match args.get("include_base64").and_then(serde_json::Value::as_bool) {
+        let include_base64 = match args
+            .get("include_base64")
+            .and_then(serde_json::Value::as_bool)
+        {
             Some(b) => b,
             None => file_size <= MAX_IMAGE_INLINE_CHAT_BYTES,
         };

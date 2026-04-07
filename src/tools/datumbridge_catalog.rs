@@ -28,6 +28,8 @@ struct EdgeTool {
     description: String,
     #[serde(rename = "inputSchema")]
     input_schema: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    metadata: Option<serde_json::Value>,
 }
 
 /// Build manifest JSON for edge devices (typical gateway: browser + HTTP + web_fetch enabled).
@@ -75,12 +77,22 @@ pub fn build_datumbridge_edge_manifest() -> anyhow::Result<serde_json::Value> {
 
     let mut out_tools: Vec<EdgeTool> = tools
         .iter()
-        .map(|t| EdgeTool {
-            registry_id: format!("edge_dtbclaw_{}", t.name().replace(['.', '-'], "_")),
-            name: format!("Edge: {}", t.name()),
-            mcp_tool_name: t.name().to_string(),
-            description: t.description().to_string(),
-            input_schema: t.parameters_schema(),
+        .map(|t| {
+            let mut metadata = None;
+            if t.name() == "edge_agent_run" {
+                metadata = Some(serde_json::json!({
+                    "edgeDevice": true,
+                    "requiresEdgeMission": true
+                }));
+            }
+            EdgeTool {
+                registry_id: format!("edge_dtbclaw_{}", t.name().replace(['.', '-'], "_")),
+                name: format!("Edge: {}", t.name()),
+                mcp_tool_name: t.name().to_string(),
+                description: t.description().to_string(),
+                input_schema: t.parameters_schema(),
+                metadata,
+            }
         })
         .collect();
 

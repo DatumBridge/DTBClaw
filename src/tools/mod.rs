@@ -38,6 +38,7 @@ pub mod datumbridge_catalog;
 pub mod delegate;
 pub mod delegate_coordination_status;
 pub mod docx_read;
+pub mod edge_agent_run;
 #[cfg(feature = "channel-lark")]
 pub mod feishu_doc;
 pub mod file_edit;
@@ -110,6 +111,7 @@ pub use cursor_cli::CursorCliTool;
 pub use delegate::DelegateTool;
 pub use delegate_coordination_status::DelegateCoordinationStatusTool;
 pub use docx_read::DocxReadTool;
+pub use edge_agent_run::EdgeAgentRunTool;
 #[cfg(feature = "channel-lark")]
 pub use feishu_doc::FeishuDocTool;
 pub use file_edit::FileEditTool;
@@ -701,6 +703,10 @@ pub fn all_tools_with_runtime(
                 parameters: tool.parameters.clone(),
             })));
         }
+    }
+
+    if EdgeAgentRunTool::enabled_from_env() {
+        tool_arcs.push(Arc::new(EdgeAgentRunTool::from_env()));
     }
 
     // Attach background execution wrappers to the finalized registry.
