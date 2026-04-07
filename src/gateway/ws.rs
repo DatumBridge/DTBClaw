@@ -408,7 +408,11 @@ pub async fn handle_ws_chat(
         .session_id
         .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
 
-    ws.on_upgrade(move |socket| handle_socket(socket, state, session_id))
+    // Browsers send `Sec-WebSocket-Protocol: octoclaw.v1` (and optionally `bearer.<token>`).
+    // Per WHATWG WebSocket rules, if the client offered subprotocols the response must echo one
+    // the server supports, or the user agent fails the connection immediately after upgrade.
+    ws.protocols(["octoclaw.v1"])
+        .on_upgrade(move |socket| handle_socket(socket, state, session_id))
         .into_response()
 }
 

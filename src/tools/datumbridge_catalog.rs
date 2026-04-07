@@ -9,7 +9,7 @@ use tempfile::TempDir;
 use crate::config::{BrowserConfig, Config, HttpRequestConfig, MemoryConfig, WebFetchConfig};
 use crate::memory::create_memory;
 use crate::security::SecurityPolicy;
-use crate::tools::{all_tools, Tool};
+use crate::tools::all_tools;
 
 #[derive(Serialize)]
 struct EdgeManifest {

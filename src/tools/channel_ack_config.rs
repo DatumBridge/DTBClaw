@@ -55,6 +55,34 @@ impl ChannelAckConfigTool {
         Self { config, security }
     }
 
+    /// JSON Schema for one `AckReactionRuleConfig` — used for `rules[]` items and `rule`.
+    /// Providers (e.g. OpenAI strict function calling) require `array` schemas to declare `items`.
+    fn ack_reaction_rule_json_schema() -> Value {
+        json!({
+            "type": "object",
+            "properties": {
+                "enabled": {"type": "boolean"},
+                "contains_any": {"type": "array", "items": {"type": "string"}},
+                "contains_all": {"type": "array", "items": {"type": "string"}},
+                "contains_none": {"type": "array", "items": {"type": "string"}},
+                "regex_any": {"type": "array", "items": {"type": "string"}},
+                "regex_all": {"type": "array", "items": {"type": "string"}},
+                "regex_none": {"type": "array", "items": {"type": "string"}},
+                "sender_ids": {"type": "array", "items": {"type": "string"}},
+                "chat_ids": {"type": "array", "items": {"type": "string"}},
+                "chat_types": {
+                    "type": "array",
+                    "items": {"type": "string", "enum": ["direct", "group"]}
+                },
+                "locale_any": {"type": "array", "items": {"type": "string"}},
+                "action": {"type": "string", "enum": ["react", "suppress"]},
+                "sample_rate": {"type": ["number", "null"], "minimum": 0.0, "maximum": 1.0},
+                "strategy": {"type": ["string", "null"], "enum": ["random", "first", null]},
+                "emojis": {"type": "array", "items": {"type": "string"}}
+            }
+        })
+    }
+
     fn load_config_without_env(&self) -> anyhow::Result<Config> {
         let contents = fs::read_to_string(&self.config.config_path).map_err(|error| {
             anyhow::anyhow!(
@@ -594,6 +622,7 @@ impl Tool for ChannelAckConfigTool {
     }
 
     fn parameters_schema(&self) -> Value {
+        let rule_schema = Self::ack_reaction_rule_json_schema();
         json!({
             "type": "object",
             "properties": {
@@ -616,8 +645,13 @@ impl Tool for ChannelAckConfigTool {
                         {"type": "null"}
                     ]
                 },
-                "rules": {"type": ["array", "null"]},
-                "rule": {"type": "object"},
+                "rules": {
+                    "anyOf": [
+                        {"type": "array", "items": rule_schema.clone()},
+                        {"type": "null"}
+                    ]
+                },
+                "rule": rule_schema,
                 "index": {"type": "integer", "minimum": 0},
                 "text": {"type": "string"},
                 "sender_id": {"type": ["string", "null"]},
